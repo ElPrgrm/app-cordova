@@ -1,0 +1,95 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content:;">
+    <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover">
+    <meta name="color-scheme" content="light dark">
+    <link rel="stylesheet" href="css/inventario.css">
+    <title>Inventario</title>
+</head>
+<body>
+    <header class="page-header">
+        <div>
+            <p class="page-label">Control de inventario</p>
+            <h1>Inventario de productos</h1>
+            <p>Lista de artículos disponibles en almacén, con cantidades, ubicación y estado.</p>
+        </div>
+        <nav>
+            <a class="btn" href="index.html">Inicio</a>
+            <a class="btn btn-secondary" href="form.html">Agregar producto</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <section class="inventory-summary">
+            <article class="summary-card">
+                <span>Total de registros</span>
+                <strong>5</strong>
+            </article>
+            <article class="summary-card">
+                <span>Ubicaciones</span>
+                <strong>4</strong>
+            </article>
+            <article class="summary-card">
+                <span>Estado general</span>
+                <strong>Estable</strong>
+            </article>
+        </section>
+
+        <section class="inventory-table-wrapper">
+            <table class="inventory-table">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Cantidad</th>
+                        <th>Precio unidad</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Twinky Fresa</td>
+                        <td>20</td>
+                        <td>$12.00</td>
+                        <td><span class="status-pill status-available">Disponible</span></td>
+                    </tr>
+                    <tr>
+                        <td>Papas Sabritas</td>
+                        <td>50</td>
+                        <td>$11.00</td>
+                        <td><span class="status-pill status-available">Disponible</span></td>
+                    </tr>
+                    <tr>
+                        <td>Gansito</td>
+                        <td>35</td>
+                        <td>$12.00</td>
+                        <td><span class="status-pill status-available">Disponible</span></td>
+                    </tr>
+                    <tr>
+                        <td>Chocoroles</td>
+                        <td>5</td>
+                        <td>$12.00</td>
+                        <td><span class="status-pill status-restock">Reposición</span></td>
+                    </tr>
+                    <tr>
+                        <td>Cacahuates Japoneses</td>
+                        <td>1</td>
+                        <td>$8.00</td>
+                        <td><span class="status-pill status-low">Bajo stock</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="inventory-notes">
+            <h2>Notas</h2>
+            <p>Actualiza este inventario cada vez que ingreses o retires productos. Los estados ayudan a priorizar compras y mantener órdenes de reposición claras.</p>
+        </section>
+    </main>
+
+    <footer class="page-footer">
+        <p>Última actualización: 21 de mayo de 2026</p>
+    </footer>
+</body>
+</html>
