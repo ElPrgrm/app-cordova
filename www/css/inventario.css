@@ -86,6 +86,52 @@ body {
     background-color: rgba(15, 23, 42, 0.14);
 }
 
+.action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 14px;
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+    font-weight: 700;
+    color: #ffffff;
+    transition: background-color 160ms ease, transform 160ms ease;
+    background-color: #2563eb;
+}
+
+.action-btn:hover {
+    background-color: #1d4ed8;
+    transform: translateY(-1px);
+}
+
+.save-btn {
+    background-color: #16a34a;
+}
+
+.save-btn:hover {
+    background-color: #15803d;
+}
+
+.cancel-btn {
+    background-color: #c2410c;
+    margin-left: 8px;
+}
+
+.cancel-btn:hover {
+    background-color: #9a3412;
+}
+
+.edit-input {
+    width: 100%;
+    min-width: 120px;
+    padding: 10px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 14px;
+    background-color: #f8fafc;
+    color: #0f172a;
+}
+
 .container {
     max-width: 1120px;
     margin: 0 auto;
