@@ -1,0 +1,9 @@
+#ignorar archviso de cordova propios y temporales
+platforms/
+plugins/
+node_modules/
+.cordova/
+
+#archivos del sistema
+.DS_Store
+Thumbs.db
