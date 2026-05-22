@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Ventas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/ventas.css">
+</head>
+
+<body class="bg-light">
+    <main class="app-shell">
+        <section class="panel d-flex panel-row row gx-0">
+            <div class="side-left col-12 col-xl-4 bg-white">
+                <div class="d-flex align-items-start justify-content-between mb-4">
+                    <div class="brand">
+                        <strong>App Tablet SP+</strong>
+                        <small>Administrador</small>
+                    </div>
+
+                    <div class="d-flex flex-column align-items-end">
+                        <button id="historyButton" type="button" class="btn btn-outline-primary btn-sm mb-2">Historial de ventas</button>
+                        <div class="ticket-number">Ticket #000000001</div>
+                    </div>
+                </div>
+
+                <div class="section-title">Ticket de venta</div>
+
+                <div class="item-list" id="itemList"></div>
+
+                <div class="totals">
+                    <div class="line"><span>Sub-total</span><span>$0.00</span></div>
+                    <div class="line"><span>Descuento</span><span>$0.00</span></div>
+                    <button class="btn btn-success btn-lg btn-primary-action mt-4" type="button">Pagar $0.00</button>
+                </div>
+            </div>
+
+            <aside class="side-right col-12 col-xl-8 bg-light">
+                <div class="search-box mb-4">
+                    <div class="input-group shadow-sm rounded-3 overflow-hidden">
+                        <span class="input-group-text bg-white border-0">🔍</span>
+                        <input type="search" class="form-control border-0" placeholder="Buscar productos" aria-label="Buscar productos">
+                    </div>
+                </div>
+
+                <div class="categories btn-group flex-wrap mb-4" role="group" aria-label="Categorías">
+                    <button type="button" class="chip btn btn-sm active">Todos</button>
+                    <button type="button" class="chip btn btn-sm">Pastelitos Dulces</button>
+                    <button type="button" class="chip btn btn-sm">Galletas Saladas</button>
+                    <button type="button" class="chip btn btn-sm">Galletas Dulces</button>
+                    <button type="button" class="chip btn btn-sm">Botanas</button>
+                </div>
+
+                <div class="product-grid"></div>
+
+            </aside>
+
+            <div id="paymentPreview" class="payment-preview d-none">
+                <div class="preview-panel">
+                    <div class="d-flex align-items-start justify-content-between mb-3">
+                        <div>
+                            <h5 class="mb-1">Resumen de compra</h5>
+                            <p class="text-muted mb-0">Revisa tu ticket antes de confirmar.</p>
+                        </div>
+                        <button type="button" class="btn-close" aria-label="Cerrar" id="previewClose"></button>
+                    </div>
+                    <div class="preview-items"></div>
+                    <div class="preview-totals mt-3">
+                        <div class="d-flex justify-content-between mb-2"><span>Sub-total</span><strong id="previewSubtotal">$0.00</strong></div>
+                        <div class="d-flex justify-content-between mb-2"><span>Descuento</span><strong id="previewDiscount">$0.00</strong></div>
+                        <div class="d-flex justify-content-between total-line"><span>Total</span><strong id="previewTotal">$0.00</strong></div>
+                    </div>
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="button" class="btn btn-secondary btn-sm flex-fill" id="previewCancel">Volver</button>
+                        <button type="button" class="btn btn-success btn-sm flex-fill" id="previewConfirm">Confirmar pago</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="historyPreview" class="payment-preview d-none">
+                <div class="preview-panel">
+                    <div class="d-flex align-items-start justify-content-between mb-3">
+                        <div>
+                            <h5 class="mb-1">Historial de ventas</h5>
+                            <p class="text-muted mb-0">Ventas de los últimos 7 días.</p>
+                        </div>
+                        <button type="button" class="btn-close" aria-label="Cerrar" id="historyClose"></button>
+                    </div>
+                    <div class="preview-items history-items"></div>
+                    <div class="preview-totals mt-3">
+                        <div class="d-flex justify-content-between mb-2"><span>Ventas totales</span><strong id="historyCount">0</strong></div>
+                        <div class="d-flex justify-content-between total-line"><span>Monto total</span><strong id="historyTotal">$0.00</strong></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <script src="js/ventas.js"></script>
+</body>
+
+</html>
