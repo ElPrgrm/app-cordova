@@ -124,6 +124,21 @@ form {
     }
 }
 
+.form-message {
+    margin: 0 28px 16px;
+    padding: 12px 16px;
+    border-radius: 14px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    display: none;
+}
+
+.form-message.visible {
+    display: block;
+}
+
 @media screen and (min-width: 900px) {
     body {
         font-size: 14px;
@@ -132,4 +147,16 @@ form {
     .container {
         padding: 40px 24px;
     }
+}
+.btn-secundario {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    padding: 12px 20px;
+    background-color: #28a745;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
 }
