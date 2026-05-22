@@ -220,3 +220,23 @@
         padding: 8px;
     }
 }
+
+.seccion-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.boton-menu {
+    text-align: center;
+    text-decoration: none;
+    font-size: 18px;
+    justify-content: center;
+}
+
+@media (min-width: 768px) {
+    .seccion-menu {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
