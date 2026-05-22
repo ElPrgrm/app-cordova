@@ -3,99 +3,153 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Ventas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
+    <title>POS Tablet | Sistema de Ventas</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="css/ventas.css">
 </head>
 
-<body class="bg-light">
+<body>
     <main class="app-shell">
-        <section class="panel d-flex panel-row row gx-0">
-            <div class="side-left col-12 col-xl-4 bg-white">
-                <div class="d-flex align-items-start justify-content-between mb-4">
-                    <div class="brand">
-                        <strong>App Tablet SP+</strong>
-                        <small>Administrador</small>
-                    </div>
-
-                    <div class="d-flex flex-column align-items-end">
-                        <button id="historyButton" type="button" class="btn btn-outline-primary btn-sm mb-2">Historial de ventas</button>
-                        <div class="ticket-number">Ticket #000000001</div>
-                    </div>
-                </div>
-
-                <div class="section-title">Ticket de venta</div>
-
-                <div class="item-list" id="itemList"></div>
-
-                <div class="totals">
-                    <div class="line"><span>Sub-total</span><span>$0.00</span></div>
-                    <div class="line"><span>Descuento</span><span>$0.00</span></div>
-                    <button class="btn btn-success btn-lg btn-primary-action mt-4" type="button">Pagar $0.00</button>
-                </div>
-            </div>
-
-            <aside class="side-right col-12 col-xl-8 bg-light">
-                <div class="search-box mb-4">
-                    <div class="input-group shadow-sm rounded-3 overflow-hidden">
-                        <span class="input-group-text bg-white border-0">🔍</span>
-                        <input type="search" class="form-control border-0" placeholder="Buscar productos" aria-label="Buscar productos">
-                    </div>
-                </div>
-
-                <div class="categories btn-group flex-wrap mb-4" role="group" aria-label="Categorías">
-                    <button type="button" class="chip btn btn-sm active">Todos</button>
-                    <button type="button" class="chip btn btn-sm">Pastelitos Dulces</button>
-                    <button type="button" class="chip btn btn-sm">Galletas Saladas</button>
-                    <button type="button" class="chip btn btn-sm">Galletas Dulces</button>
-                    <button type="button" class="chip btn btn-sm">Botanas</button>
-                </div>
-
-                <div class="product-grid"></div>
-
-            </aside>
-
-            <div id="paymentPreview" class="payment-preview d-none">
-                <div class="preview-panel">
-                    <div class="d-flex align-items-start justify-content-between mb-3">
-                        <div>
-                            <h5 class="mb-1">Resumen de compra</h5>
-                            <p class="text-muted mb-0">Revisa tu ticket antes de confirmar.</p>
+        <div class="panel">
+            <div class="panel-row row g-0">
+                <!-- COLUMNA CARRITO (IZQUIERDA) -->
+                <div class="side-left col-12 col-xl-4 col-lg-5">
+                    <div class="header-cart">
+                        <div class="brand">
+                            <i class="fas fa-store me-2"></i>
+                            <strong>POS Tablet SP+</strong>
+                            <small>Administrador</small>
                         </div>
-                        <button type="button" class="btn-close" aria-label="Cerrar" id="previewClose"></button>
-                    </div>
-                    <div class="preview-items"></div>
-                    <div class="preview-totals mt-3">
-                        <div class="d-flex justify-content-between mb-2"><span>Sub-total</span><strong id="previewSubtotal">$0.00</strong></div>
-                        <div class="d-flex justify-content-between mb-2"><span>Descuento</span><strong id="previewDiscount">$0.00</strong></div>
-                        <div class="d-flex justify-content-between total-line"><span>Total</span><strong id="previewTotal">$0.00</strong></div>
-                    </div>
-                    <div class="d-flex gap-2 mt-4">
-                        <button type="button" class="btn btn-secondary btn-sm flex-fill" id="previewCancel">Volver</button>
-                        <button type="button" class="btn btn-success btn-sm flex-fill" id="previewConfirm">Confirmar pago</button>
-                    </div>
-                </div>
-            </div>
-
-            <div id="historyPreview" class="payment-preview d-none">
-                <div class="preview-panel">
-                    <div class="d-flex align-items-start justify-content-between mb-3">
-                        <div>
-                            <h5 class="mb-1">Historial de ventas</h5>
-                            <p class="text-muted mb-0">Ventas de los últimos 7 días.</p>
+                        <div class="ticket-number">
+                            <i class="far fa-receipt"></i>
+                            <span>Ticket #000000001</span>
                         </div>
-                        <button type="button" class="btn-close" aria-label="Cerrar" id="historyClose"></button>
                     </div>
-                    <div class="preview-items history-items"></div>
-                    <div class="preview-totals mt-3">
-                        <div class="d-flex justify-content-between mb-2"><span>Ventas totales</span><strong id="historyCount">0</strong></div>
-                        <div class="d-flex justify-content-between total-line"><span>Monto total</span><strong id="historyTotal">$0.00</strong></div>
+
+                    <!-- Badge mobile para total -->
+                    <div class="mobile-totals-badge d-lg-none" id="mobileTotalBadge">
+                        <span><i class="fas fa-shopping-cart"></i> Total carrito</span>
+                        <strong id="mobileTotalSpan">$0.00</strong>
+                    </div>
+
+                    <div class="section-title">
+                        <i class="fas fa-ticket-alt me-2"></i> Ticket de venta
+                    </div>
+
+                    <div class="item-list" id="itemList"></div>
+
+                    <div class="totals">
+                        <div class="line">
+                            <span><i class="fas fa-calculator"></i> Sub-total</span>
+                            <span id="cartSubtotal">$0.00</span>
+                        </div>
+                        <div class="line">
+                            <span><i class="fas fa-tag"></i> Descuento (5%)</span>
+                            <span id="cartDiscount">$0.00</span>
+                        </div>
+                        <button class="btn btn-primary-action" type="button" id="payButtonMobileStyle">
+                            <i class="fas fa-credit-card me-2"></i>
+                            Pagar $0.00
+                        </button>
+                    </div>
+                </div>
+
+                <!-- COLUMNA PRODUCTOS / CATÁLOGO -->
+                <aside class="side-right col-12 col-xl-8 col-lg-7">
+                    <div class="search-box mb-3">
+                        <div class="input-group shadow-sm rounded-pill overflow-hidden">
+                            <span class="input-group-text bg-white border-0">
+                                <i class="fas fa-search"></i>
+                            </span>
+                            <input type="search" id="searchInput" class="form-control border-0" placeholder="Buscar productos...">
+                        </div>
+                    </div>
+
+                    <div class="categories" id="categoriesContainer"></div>
+
+                    <!-- Banner responsivo con imagen -->
+                    <div class="promo-banner mb-4">
+                        <picture>
+                            <source media="(max-width: 576px)" srcset="https://via.placeholder.com/400x120/10b981/white?text=OFERTAS+FLASH">
+                            <source media="(max-width: 991px)" srcset="https://via.placeholder.com/800x150/10b981/white?text=🔥+DESCUENTOS+ESPECIALES+🔥">
+                            <img src="https://via.placeholder.com/1200x180/10b981/white?text=🎉+PROMOCIONES+DE+TEMPORADA+🎉" alt="Promociones especiales" class="img-fluid rounded-3 w-100" style="object-fit: cover;">
+                        </picture>
+                        <div class="banner-overlay">
+                            <span class="badge bg-danger">-20%</span>
+                            <span class="badge bg-warning">Envío gratis</span>
+                        </div>
+                    </div>
+
+                    <div class="product-grid" id="productGrid"></div>
+                </aside>
+            </div>
+        </div>
+
+        <!-- MODAL PREVIEW PAGO -->
+        <div id="paymentPreview" class="payment-preview d-none">
+            <div class="preview-panel">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <i class="fas fa-receipt fa-2x mb-2 d-block"></i>
+                        <h5 class="mb-0">Resumen de compra</h5>
+                        <small class="text-muted">Revisa antes de pagar</small>
+                    </div>
+                    <button type="button" class="btn-close" id="previewCloseBtn"></button>
+                </div>
+                <div class="preview-items" id="previewItemsList"></div>
+                <div class="preview-totals mt-3">
+                    <div class="d-flex justify-content-between">
+                        <span><i class="fas fa-calculator"></i> Sub-total</span>
+                        <strong id="previewSubtotal">$0.00</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mt-1">
+                        <span><i class="fas fa-tag"></i> Descuento (5%)</span>
+                        <strong id="previewDiscount">$0.00</strong>
+                    </div>
+                    <div class="d-flex justify-content-between total-line mt-2 pt-2">
+                        <span><i class="fas fa-money-bill-wave"></i> Total</span>
+                        <strong id="previewTotalAmount">$0.00</strong>
+                    </div>
+                </div>
+                <div class="d-flex gap-2 mt-4">
+                    <button class="btn btn-secondary flex-fill" id="previewCancelBtn">
+                        <i class="fas fa-arrow-left"></i> Volver
+                    </button>
+                    <button class="btn btn-success flex-fill" id="previewConfirmBtn">
+                        <i class="fas fa-check-circle"></i> Confirmar pago
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL HISTORIAL VENTAS -->
+        <div id="historyPreview" class="payment-preview d-none">
+            <div class="preview-panel">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <i class="fas fa-chart-line fa-2x mb-2 d-block"></i>
+                        <h5 class="mb-0">Historial de ventas</h5>
+                        <small class="text-muted">Últimos 7 días</small>
+                    </div>
+                    <button type="button" class="btn-close" id="historyCloseBtn"></button>
+                </div>
+                <div class="history-items" id="historyList"></div>
+                <div class="mt-3 pt-2 border-top">
+                    <div class="d-flex justify-content-between">
+                        <span><i class="fas fa-receipt"></i> Ventas totales</span>
+                        <strong id="historyCountSpan">0</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mt-1">
+                        <span><i class="fas fa-dollar-sign"></i> Monto recaudado</span>
+                        <strong id="historyTotalSpan">$0.00</strong>
                     </div>
                 </div>
             </div>
-        </section>
+        </div>
     </main>
+
     <script src="js/ventas.js"></script>
 </body>
 
