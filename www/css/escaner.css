@@ -1,0 +1,242 @@
+/* Estilos Base del Módulo */
+.modulo-escaner {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    min-height: 100vh;
+    padding: 15px;
+    box-sizing: border-box;
+    background-color: #111;
+    color: #fff;
+    font-family: Arial, sans-serif;
+}
+
+/* Imagen responsiva  */
+.img-responsiva {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+/* Distribución del Panal de Control */
+.panel-control {
+    background-color: #000000;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(255,255,255,0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+}
+
+.acciones-panel {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.btn-primario,
+.btn-secundario {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 12px 20px;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 15px;
+}
+
+.btn-primario {
+    background-color: #007bff;
+}
+
+.btn-secundario {
+    background-color: #28a745;
+}
+
+.icono {
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
+}
+
+/* Estilos de la zona CRUD */
+.seccion-crud {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.formulario-mock,
+.historial-escaneos,
+.contenedor-tabla,
+.formulario-producto {
+    background-color: #1b1b1b;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.grupo-input {
+    display: flex;
+    gap: 10px;
+}
+
+.grupo-input input {
+    flex: 1;
+    padding: 10px;
+    border-radius: 5px;
+    border: none;
+}
+
+.grupo-input button {
+    padding: 10px 15px;
+    border: none;
+    background-color: #007bff;
+    color: #fff;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.lista-datos {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.lista-datos li {
+    background: #fff;
+    color: #000;
+    padding: 10px;
+    margin-bottom: 5px;
+    border-left: 4px solid #007bff;
+    border-radius: 4px;
+}
+
+.mensaje-sistema {
+    color: #00d9ff;
+    font-weight: bold;
+}
+
+/* Tabla dinámica */
+.inventario {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+    color: #000;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.inventario th,
+.inventario td {
+    padding: 12px;
+    border: 1px solid #ccc;
+    text-align: left;
+}
+
+.inventario th {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.inventario tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+/* Formulario */
+.campo-formulario {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-bottom: 15px;
+}
+
+.campo-formulario input,
+.campo-formulario textarea {
+    padding: 10px;
+    border-radius: 5px;
+    border: none;
+}
+
+.campo-formulario textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+/* Pantallas Medianas y Grandes */
+@media (min-width: 768px) {
+    .seccion-crud {
+        flex-direction: row;
+    }
+
+    .formulario-mock,
+    .historial-escaneos {
+        flex: 1;
+    }
+
+    .banner-escaner {
+        height: 200px;
+        overflow: hidden;
+    }
+}
+
+/* Pantallas Pequeñas */
+@media (max-width: 767px) {
+    .texto-boton {
+        display: none;
+    }
+
+    .btn-primario {
+        padding: 12px;
+    }
+
+    .panel-control {
+        order: -1;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .acciones-panel {
+        flex-direction: column;
+    }
+
+    .grupo-input {
+        flex-direction: column;
+    }
+
+    .inventario {
+        font-size: 13px;
+    }
+
+    .inventario th,
+    .inventario td {
+        padding: 8px;
+    }
+}
+
+.seccion-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.boton-menu {
+    text-align: center;
+    text-decoration: none;
+    font-size: 18px;
+    justify-content: center;
+}
+
+@media (min-width: 768px) {
+    .seccion-menu {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+    }
+}

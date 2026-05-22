@@ -1,0 +1,61 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content:;">
+    <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover">
+    <meta name="color-scheme" content="light dark">
+    <link rel="stylesheet" href="css/inventario.css">
+    <title>Inventario</title>
+</head>
+<body>
+    <header class="page-header">
+        <div>
+            <p class="page-label">Control de inventario</p>
+            <h1>Inventario de productos</h1>
+            <p>Lista de artículos disponibles en almacén, con cantidades y precio unitario.</p>
+        </div>
+        <nav>
+            <a class="btn" href="index.html">Inicio</a>
+            <a class="btn btn-secondary" href="form.html">Agregar producto</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <section class="inventory-summary">
+            <article class="summary-card">
+                <span>Total de registros</span>
+                <strong id="total-count">0</strong>
+            </article>
+        </section>
+
+        <section class="inventory-table-wrapper">
+            <table class="inventory-table">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Cantidad</th>
+                        <th>Precio unidad</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="inventory-body">
+                    <tr>
+                        <td colspan="4">Cargando productos...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="inventory-notes">
+            <h2>Notas</h2>
+            <p>Actualiza este inventario cada vez que ingreses o retires productos. Mantén las cantidades y precios actualizados para controlar el stock.</p>
+        </section>
+    </main>
+
+    <footer class="page-footer">
+        <p>Última actualización: <span id="updated-at">21 de mayo de 2026</span></p>
+    </footer>
+    <script src="js/inventario.js"></script>
+</body>
+</html>
