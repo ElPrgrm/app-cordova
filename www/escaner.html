@@ -25,14 +25,20 @@
 
             <div class="acciones-panel">
                 <a href="form.html" class="btn-secundario">Añadir producto</a>
+            </div>
 
-                <button id="btn-disparar-escaner" class="btn-primario">
-                    <svg class="icono" viewBox="0 0 24 24">
-                        <path
-                            d="M4 4h3V2H4c-1.1 0-2 .9-2 2v3h2V4zm16-2h-3v2h3v3h2V4c0-1.1-.9-2-2-2zm2 16h-2v3h-3v2h4c1.1 0 2-.9 2-2v-4zM4 17H2v4c0 1.1.9 2 2 2h3v-2H4v-3zm16-7V4H4v16h16v-6h-2v4H6V6h12v4h2z" />
-                    </svg>
-                    <span class="texto-boton">Escanear</span>
-                </button>
+
+             <div id="container">
+                <div id="barkoderView"></div>
+                <div class="btnContainer">
+                    <button id="startScanBtn" class="actionButton" disabled>Start Scanning</button>
+                    <button id="stopScanBtn" class="actionButton" disabled>Stop Scanning</button>
+                </div>
+                <div id="resultContainer" class="resultContainer" style="display:none;">
+                    <p>Result: <a id="resultText"></a></p>
+                    <p>Type: <span id="resultType"></span></p>
+                    <img id="resultImage" class="resultImage" alt="Scanned Thumbnail" />
+                </div>
             </div>
         </section>
 
@@ -75,11 +81,17 @@
             </table>
         </section>
 
-    </main>
+
+            <script src="cordova.js"></script>
+            <script src="js/config.js"></script>
+            <script src="js/escaner.js"></script>
+</body>
+</section>
+</main>
 <br>
 <a href="index.html" class="btn-secundario">Volver al menú</a>
-    <script src="cordova.js"></script>
-    <script src="js/escaner.js"></script>
+<script src="cordova.js"></script>
+<script src="js/escaner.js"></script>
 
 </body>
 
