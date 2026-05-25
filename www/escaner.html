@@ -4,9 +4,7 @@
 <head>
     <meta charset="utf-8">
 
-    <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; connect-src 'self'; style-src 'self'; media-src *;">
-
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; connect-src 'self' https://mitunnel.com; style-src 'self' 'unsafe-inline'; media-src *;">
     <meta name="format-detection" content="telephone=no">
     <meta name="msapplication-tap-highlight" content="no">
     <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover">
@@ -49,7 +47,7 @@
 
                 <div class="grupo-input">
                     <input type="text" id="input-codigo-manual" placeholder="Código de barras manual">
-                    <button id="btn-guardar-codigo">Guardar</button>
+                    <button id="btnGuardar">Guardar</button>
                 </div>
 
                 <p id="mensaje-sistema" class="mensaje-sistema"></p>
@@ -85,14 +83,14 @@
             <script src="cordova.js"></script>
             <script src="js/config.js"></script>
             <script src="js/escaner.js"></script>
+
+            <a href="index.html" class="btn-secundario">Volver al menú</a>
 </body>
 </section>
 </main>
 <br>
-<a href="index.html" class="btn-secundario">Volver al menú</a>
-<script src="cordova.js"></script>
-<script src="js/escaner.js"></script>
 
-</body>
+
+
 
 </html>
