@@ -1,20 +1,28 @@
-const PRODUCTOS_FILE = 'productos.json';
-const STORAGE_KEY = 'productosBackup';
+const API_BASE_URL = 'http://localhost/DDI/API/productos.php';
 let formInitialized = false;
+let currentProductId = null;
 
 window.addEventListener('DOMContentLoaded', initForm);
 window.addEventListener('deviceready', initForm);
 
-function initForm() {
+async function initForm() {
     if (formInitialized) {
         return;
     }
+
     const form = document.getElementById('product-form');
     if (!form) {
         return;
     }
+
     formInitialized = true;
     form.addEventListener('submit', onFormSubmit);
+
+    const id = getQueryParam('id');
+    if (id) {
+        currentProductId = id;
+        await loadProductForEdit(id);
+    }
 }
 
 async function onFormSubmit(event) {
@@ -27,15 +35,109 @@ async function onFormSubmit(event) {
     }
 
     try {
-        const productos = await loadProductos();
-        producto.id = getNextId(productos);
-        productos.push(producto);
-        await saveProductos({ productos });
-        showMessage('Producto guardado correctamente.');
-        document.getElementById('product-form').reset();
+        const result = currentProductId
+            ? await updateProducto(currentProductId, producto)
+            : await createProducto(producto);
+
+        if (result && result.success) {
+            const message = currentProductId
+                ? 'Producto actualizado correctamente.'
+                : `Producto guardado correctamente con ID: ${result.id}`;
+
+            showMessage(message);
+            if (!currentProductId) {
+                document.getElementById('product-form').reset();
+            }
+        } else {
+            showMessage(result.error || 'No se pudo guardar el producto.', true);
+        }
     } catch (error) {
-        console.error('Error guardando producto:', error);
+        console.error('Error en la petición al servidor:', error);
         showMessage('No se pudo guardar el producto. Revisa la consola.', true);
+    }
+}
+
+async function createProducto(productoData) {
+    const response = await fetch(API_BASE_URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(productoData)
+    });
+
+    if (!response.ok) {
+        const errorBody = await tryParseJson(response);
+        return { success: false, error: errorBody?.error || `Error HTTP ${response.status}` };
+    }
+
+    return response.json();
+}
+
+async function updateProducto(id, productoData) {
+    const response = await fetch(`${API_BASE_URL}?id=${encodeURIComponent(id)}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+
+            
+        },
+        body: JSON.stringify(productoData)
+    });
+
+    if (!response.ok) {
+        const errorBody = await tryParseJson(response);
+        return { success: false, error: errorBody?.error || `Error HTTP ${response.status}` };
+    }
+
+    return response.json();
+}
+
+async function loadProductForEdit(id) {
+    const response = await fetch(`${API_BASE_URL}?id=${encodeURIComponent(id)}`);
+
+    if (!response.ok) {
+        const errorBody = await tryParseJson(response);
+        showMessage(errorBody?.error || `No se encontró el producto (HTTP ${response.status}).`, true);
+        return;
+    }
+
+    const result = await response.json();
+    if (!result.success || !result.data) {
+        showMessage(result.error || 'No se pudo cargar el producto para edición.', true);
+        return;
+    }
+
+    fillForm(result.data);
+    setFormMode('Actualizar producto');
+}
+
+function fillForm(producto) {
+    document.getElementById('codeqr').value = producto.codigo ?? '';
+    document.getElementById('name').value = producto.nombre ?? '';
+    document.getElementById('description').value = producto.descripcion ?? '';
+    document.getElementById('price').value = producto.precio ?? '';
+    document.getElementById('quantity').value = producto.cantidad ?? '';
+}
+
+function setFormMode(label) {
+    const submitButton = document.querySelector('#product-form button[type="submit"]');
+    if (submitButton) {
+        submitButton.textContent = label;
+    }
+}
+
+function getQueryParam(name) {
+    const params = new URLSearchParams(window.location.search);
+    const value = params.get(name);
+    return value ? value.trim() : null;
+}
+
+async function tryParseJson(response) {
+    try {
+        return await response.json();
+    } catch {
+        return null;
     }
 }
 
@@ -62,130 +164,10 @@ function getFormData() {
     };
 }
 
-function getNextId(productos) {
-    const maxId = productos.reduce((max, item) => {
-        const id = Number(item.id) || 0;
-        return id > max ? id : max;
-    }, 0);
-    return maxId + 1;
-}
 
-function isCordovaFileAvailable() {
-    return (
-        typeof window.cordova !== 'undefined' &&
-        typeof window.resolveLocalFileSystemURL === 'function' &&
-        window.cordova.file
-    );
-}
 
-async function loadProductos() {
-    if (isCordovaFileAvailable()) {
-        return loadProductosFromCordovaFile();
-    }
-    return loadProductosFromStorage();
-}
 
-async function saveProductos(data) {
-    if (isCordovaFileAvailable()) {
-        return saveProductosToCordovaFile(data);
-    }
-    return saveProductosToStorage(data);
-}
 
-async function loadProductosFromStorage() {
-    const stored = window.localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-        try {
-            const parsed = JSON.parse(stored);
-            return Array.isArray(parsed.productos) ? parsed.productos : [];
-        } catch (error) {
-            console.warn('Error parseando backup local:', error);
-        }
-    }
-
-    const response = await fetch(PRODUCTOS_FILE, { cache: 'no-store' });
-    if (!response.ok) {
-        throw new Error('No se pudo leer productos.json');
-    }
-    const json = await response.json();
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(json));
-    return Array.isArray(json.productos) ? json.productos : [];
-}
-
-function saveProductosToStorage(data) {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    return Promise.resolve();
-}
-
-function loadProductosFromCordovaFile() {
-    return new Promise((resolve, reject) => {
-        window.resolveLocalFileSystemURL(
-            window.cordova.file.dataDirectory,
-            (directoryEntry) => {
-                directoryEntry.getFile(
-                    PRODUCTOS_FILE,
-                    { create: true },
-                    (fileEntry) => {
-                        fileEntry.file(
-                            (file) => {
-                                const reader = new FileReader();
-                                reader.onloadend = () => {
-                                    if (!reader.result) {
-                                        resolve([]);
-                                        return;
-                                    }
-                                    try {
-                                        const json = JSON.parse(reader.result);
-                                        resolve(Array.isArray(json.productos) ? json.productos : []);
-                                    } catch (error) {
-                                        reject(error);
-                                    }
-                                };
-                                reader.onerror = reject;
-                                reader.readAsText(file);
-                            },
-                            reject
-                        );
-                    },
-                    reject
-                );
-            },
-            reject
-        );
-    });
-}
-
-function saveProductosToCordovaFile(data) {
-    return new Promise((resolve, reject) => {
-        window.resolveLocalFileSystemURL(
-            window.cordova.file.dataDirectory,
-            (directoryEntry) => {
-                directoryEntry.getFile(
-                    PRODUCTOS_FILE,
-                    { create: true },
-                    (fileEntry) => {
-                        fileEntry.createWriter(
-                            (writer) => {
-                                const blob = new Blob([JSON.stringify(data, null, 2)], {
-                                    type: 'application/json',
-                                });
-                                writer.onerror = reject;
-                                writer.onwriteend = () => {
-                                    writer.onwriteend = resolve;
-                                    writer.write(blob);
-                                };
-                                writer.truncate(0);
-                            },
-                            reject
-                        );
-                    },
-                    reject
-                );
-            },
-            reject
-        );
-    });
-}
 
 function showMessage(text, isError = false) {
     const messageElement = document.getElementById('formMessage');

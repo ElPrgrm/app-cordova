@@ -2,7 +2,19 @@
 require_once __DIR__ . '/conector.php';
 
 header('Content-Type: application/json; charset=utf-8');
+header("Access-Control-Allow-Origin: *");
 
+// 2. Permitir los métodos HTTP que acepta tu API
+header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+
+// 3. Permitir las cabeceras que el cliente intenta enviar (ej: Content-Type, Authorization)
+header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
+
+// 4. Si la petición actual es de tipo OPTIONS, responder y cortar la ejecución inmediatamente
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(204); // 204 No Content es el estándar ideal para OPTIONS
+    exit;
+}
 try {
     $db = getConexion();
 } catch (Exception $e) {
@@ -18,48 +30,51 @@ $input = json_decode(file_get_contents('php://input'), true) ?: $_POST;
 try {
     switch ($method) {
         case 'GET':
+            // Si se recibe un id en la query string, devolver ese producto
             if ($id) {
-                $select = $db->select('productos', '*');
+                $select = $db->select('productos');
                 $select->where('id', '=', $id);
-                $res = $select->execute();
+                $rows = $select->execute();
 
-                if (count($res) === 0) {
+                if (empty($rows)) {
                     http_response_code(404);
                     echo json_encode(['success' => false, 'error' => 'Producto no encontrado']);
                     exit;
                 }
 
-                echo json_encode(['success' => true, 'data' => $res[0]], JSON_UNESCAPED_UNICODE);
-            } else {
-                $select = $db->select('productos', '*');
-                $data = $select->execute();
-                echo json_encode(['success' => true, 'data' => $data], JSON_UNESCAPED_UNICODE);
-            }
-            break;
+                // $rows es un arreglo de filas; tomar la primera
+                $producto = $rows[0];
 
+                echo json_encode(['success' => true, 'data' => $producto], JSON_UNESCAPED_UNICODE);
+                break;
+            }
+
+            // Si no se indica id, devolver la lista completa
+            $select = $db->select('productos');
+            $all = $select->execute();
+            echo json_encode(['success' => true, 'data' => $all], JSON_UNESCAPED_UNICODE);
+            break;
         case 'POST':
-            // Crear producto
             $required = ['codigo', 'nombre', 'descripcion', 'precio', 'cantidad'];
-            foreach ($required as $f) {
-                if (!isset($input[$f])) {
+            foreach ($required as $field) {
+                if (!isset($input[$field]) || $input[$field] === '') {
                     http_response_code(400);
-                    echo json_encode(['success' => false, 'error' => "Falta campo: $f"]);
+                    echo json_encode(['success' => false, 'error' => "Falta campo: $field"]);
                     exit;
                 }
             }
 
-            $ins = $db->insert('productos', 'codigo,nombre,descripcion,precio,cantidad');
-            $ins->value($input['codigo']);
-            $ins->value($input['nombre']);
-            $ins->value($input['descripcion']);
-            $ins->value($input['precio']);
-            $ins->value($input['cantidad']);
+            $insert = $db->insert('productos', 'codigo,nombre,descripcion,precio,cantidad');
+            $insert->value($input['codigo']);
+            $insert->value($input['nombre']);
+            $insert->value($input['descripcion']);
+            $insert->value($input['precio']);
+            $insert->value($input['cantidad']);
 
-            $rows = $ins->execute();
-
+            $rows = $insert->execute();
             $newId = $db->lastInsertId();
 
-            echo json_encode(['success' => true, 'inserted' => (int)$rows, 'id' => $newId], JSON_UNESCAPED_UNICODE);
+            echo json_encode(['success' => true, 'inserted' => (int)$rows, 'id' => (int)$newId], JSON_UNESCAPED_UNICODE);
             break;
 
         case 'PUT':
@@ -73,9 +88,9 @@ try {
             $update = $db->update('productos');
             $setCount = 0;
 
-            foreach ($allowed as $f) {
-                if (isset($input[$f])) {
-                    $update->set($f, $input[$f]);
+            foreach ($allowed as $field) {
+                if (array_key_exists($field, $input)) {
+                    $update->set($field, $input[$field]);
                     $setCount++;
                 }
             }
@@ -115,3 +130,4 @@ try {
     http_response_code(500);
     echo json_encode(['success' => false, 'error' => $e->getMessage()]);
 }
+?>
