@@ -56,13 +56,37 @@ media-src *;">    <meta name="format-detection" content="telephone=no">
                 <p id="mensaje-sistema" class="mensaje-sistema"></p>
             </div>
 
-           
+            <div class="historial-escaneos">
+                <h4>Códigos escaneados</h4>
+
+                <ul id="lista-codigos" class="lista-datos"></ul>
+            </div>
+
+        </section>
+
+        <section class="contenedor-tabla">
+            <h4>Inventario</h4>
+
+            <table class="inventario">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Producto</th>
+                        <th>Descripción</th>
+                        <th>Cantidad</th>
+                    </tr>
+                </thead>
+
+                <tbody id="tabla-inventario">
+                </tbody>
+            </table>
+        </section>
 
 
             <script src="cordova.js"></script>
             <script src="js/config.js"></script>
             <script src="js/escaner.js"></script>
-<br
+
             <a href="ventas.html" class="btn-secundario">Volver al menú</a>
 </body>
 </section>
