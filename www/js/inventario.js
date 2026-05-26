@@ -66,6 +66,7 @@ document.addEventListener('DOMContentLoaded', function () {
             })
             .then(data => {
                 if (data.success && Array.isArray(data.data)) {
+                       console.error('er');
                     renderizarTabla(data.data);
                 } else {
                     throw new Error('Formato de respuesta inválido desde la API');

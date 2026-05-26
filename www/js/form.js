@@ -18,6 +18,13 @@ async function initForm() {
     formInitialized = true;
     form.addEventListener('submit', onFormSubmit);
 
+    const codeInput = document.getElementById('codeqr');
+    const codeFromUrl = getQueryParam('codigo');
+    if (codeInput && codeFromUrl) {
+        codeInput.value = codeFromUrl;
+        setCodeReadOnly(true);
+    }
+
     const id = getQueryParam('modeEdit');
     if (id) {
         currentProductId = id;
@@ -127,10 +134,25 @@ async function loadProductForEdit(id) {
 
 function fillForm(producto) {
     document.getElementById('codeqr').value = producto.codigo ?? '';
+    setCodeReadOnly(true);
     document.getElementById('name').value = producto.nombre ?? '';
     document.getElementById('description').value = producto.descripcion ?? '';
     document.getElementById('price').value = producto.precio ?? '';
     document.getElementById('quantity').value = producto.cantidad ?? '';
+}
+
+function setCodeReadOnly(isReadOnly) {
+    const codeInput = document.getElementById('codeqr');
+    if (!codeInput) {
+        return;
+    }
+    codeInput.readOnly = isReadOnly;
+    codeInput.setAttribute('aria-readonly', isReadOnly ? 'true' : 'false');
+    if (isReadOnly) {
+        codeInput.classList.add('readonly-field');
+    } else {
+        codeInput.classList.remove('readonly-field');
+    }
 }
 
 function setFormMode(label) {
