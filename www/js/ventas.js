@@ -7,8 +7,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const currentTicketSpan = document.getElementById('currentTicketNumber');
 
     // Endpoints de la API
-    const API_PRODUCTOS_URL = 'http://localhost/DDI/API/productos.php';
-    const API_VENTAS_URL = 'http://localhost/DDI/API/ventas.php';
+    const API_PRODUCTOS_URL = 'https://elrjtd.online/DDI/API/productos.php';
+    const API_VENTAS_URL = 'https://elrjtd.online/DDI/API/ventas.php';
 
     let productosOriginales = [];
     let carrito = [];
