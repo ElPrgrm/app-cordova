@@ -357,160 +357,201 @@ document.addEventListener('deviceready', function () {
     // GUARDAR PRODUCTO
     // =====================================
 
-    if (btnGuardar) {
+   // =====================================
+// GUARDAR PRODUCTO
+// =====================================
 
-        btnGuardar.addEventListener(
-            'click',
+if (btnGuardar) {
 
-            async () => {
+    btnGuardar.addEventListener(
+        'click',
 
-                const codigoAGuardar =
-                    inputFormulario.value.trim();
+        async () => {
+
+            const codigoAGuardar =
+                inputFormulario.value.trim();
+
+            // =========================
+            // VALIDACIÓN
+            // =========================
+
+            if (
+                !codigoAGuardar ||
+                codigoAGuardar === 'undefined'
+            ) {
+
+                alert(
+                    "Primero debes escanear un código válido."
+                );
+
+                return;
+            }
+
+            try {
 
                 // =========================
-                // VALIDACIÓN
+                // DEBUG
                 // =========================
 
-                if (
-                    !codigoAGuardar ||
-                    codigoAGuardar === 'undefined'
-                ) {
+                console.log(
+                    "Enviando a:",
+                    API_BASE_URL
+                );
+
+                console.log(
+                    "Código enviado:",
+                    codigoAGuardar
+                );
+
+                // =========================
+                // FETCH
+                // =========================
+
+                const respuesta =
+                    await fetch(
+                        API_BASE_URL,
+                        {
+
+                            method: 'POST',
+
+                            headers: {
+                                'Content-Type':
+                                    'application/json'
+                            },
+
+                            body: JSON.stringify({
+                                codigo: codigoAGuardar
+                            })
+                        }
+                    );
+
+                console.log(
+                    "Status HTTP:",
+                    respuesta.status
+                );
+
+                const textoRespuesta =
+                    await respuesta.text();
+
+                console.log(
+                    "Respuesta RAW:",
+                    textoRespuesta
+                );
+
+                // =========================
+                // PARSE JSON
+                // =========================
+
+                let datos;
+
+                try {
+
+                    datos =
+                        JSON.parse(textoRespuesta);
+
+                } catch (jsonError) {
+
+                    console.error(
+                        "JSON inválido:",
+                        jsonError
+                    );
 
                     alert(
-                        "Primero debes escanear un código válido."
+                        "La API no devolvió JSON válido.\n\n" +
+                        textoRespuesta
                     );
 
                     return;
                 }
 
-                try {
+                console.log(
+                    "Respuesta API:",
+                    datos
+                );
 
-                    // =========================
-                    // FORM DATA
-                    // =========================
+                // =========================
+                // PRODUCTO EXISTENTE
+                // =========================
 
-                    const formData =
-                        new URLSearchParams();
-
-                    // IMPORTANTE:
-                    // Tu API espera "codigo"
-                    formData.append(
-                        'codigo',
-                        codigoAGuardar
-                    );
-
-                    // =========================
-                    // FETCH
-                    // =========================
-
-                    const respuesta =
-                        await fetch(
-                            API_BASE_URL,
-                            {
-
-                                method: 'POST',
-
-                                headers: {
-                                    'Content-Type':
-                                        'application/x-www-form-urlencoded'
-                                },
-
-                                body: formData
-                            }
-                        );
-
-                    const datos =
-                        await respuesta.json();
-
-                    console.log(
-                        "Respuesta API:",
-                        datos
-                    );
-
-                    // =========================
-                    // PRODUCTO EXISTENTE
-                    // =========================
-
-                    if (
-                        datos.status === 'existe'
-                    ) {
-
-                        alert(
-                            "Producto actualizado correctamente\n\n" +
-                            "Nueva cantidad: " +
-                            datos.nueva_cantidad
-                        );
-
-                        inputFormulario.value = "";
-
-                        return;
-                    }
-
-                    // =========================
-                    // PRODUCTO NUEVO
-                    // =========================
-
-                    if (
-                        datos.status === 'nuevo'
-                    ) {
-
-                        alert(
-                            "Producto no registrado.\n" +
-                            "Se abrirá el formulario."
-                        );
-
-                        // IMPORTANTE:
-                        // Tu form.js usa modeAdd
-                        window.location.href =
-                            `form.html?modeAdd=${encodeURIComponent(codigoAGuardar)}`;
-
-                        return;
-                    }
-
-                    // =========================
-                    // ERROR SERVIDOR
-                    // =========================
-
-                    if (datos.error) {
-
-                        alert(
-                            "Error:\n" +
-                            datos.error
-                        );
-
-                        return;
-                    }
-
-                    // =========================
-                    // RESPUESTA RARA
-                    // =========================
-
-                    console.warn(
-                        "Respuesta inesperada:",
-                        datos
-                    );
+                if (
+                    datos.status === 'existe'
+                ) {
 
                     alert(
-                        "Respuesta inesperada del servidor."
+                        "Producto actualizado correctamente\n\n" +
+                        "Nueva cantidad: " +
+                        datos.nueva_cantidad
                     );
 
-                } catch (error) {
+                    inputFormulario.value = "";
 
-                    console.error(
-                        "Error Fetch:",
-                        error
-                    );
-
-                    alert(
-                        "No se pudo conectar con el servidor.\n\n" +
-                        "Verifica:\n" +
-                        "- Que el hosting esté activo\n" +
-                        "- Que tengas internet\n" +
-                        "- Que la API responda correctamente"
-                    );
+                    return;
                 }
+
+                // =========================
+                // PRODUCTO NUEVO
+                // =========================
+
+                if (
+                    datos.status === 'nuevo'
+                ) {
+
+                    alert(
+                        "Producto no registrado.\n" +
+                        "Se abrirá el formulario."
+                    );
+
+                    window.location.href =
+                        `form.html?modeAdd=${encodeURIComponent(codigoAGuardar)}`;
+
+                    return;
+                }
+
+                // =========================
+                // ERROR SERVIDOR
+                // =========================
+
+                if (datos.error) {
+
+                    alert(
+                        "Error del servidor:\n\n" +
+                        datos.error
+                    );
+
+                    return;
+                }
+
+                // =========================
+                // RESPUESTA RARA
+                // =========================
+
+                console.warn(
+                    "Respuesta inesperada:",
+                    datos
+                );
+
+                alert(
+                    "Respuesta inesperada del servidor."
+                );
+
+            } catch (error) {
+
+                // =========================
+                // ERROR REAL
+                // =========================
+
+                console.error(
+                    "ERROR COMPLETO:",
+                    error
+                );
+
+                alert(
+                    "ERROR REAL:\n\n" +
+                    error.message
+                );
             }
-        );
-    }
+        }
+    );
+}
 
 }, false);
