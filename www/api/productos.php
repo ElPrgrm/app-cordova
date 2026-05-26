@@ -68,7 +68,7 @@ try {
             } elseif ($codigo) {
 
                 $select = $db->select('productos');
-                $select->where('codigo', '=', $codigo);
+                $select->where('id', '=', $codigo);
 
                 $rows = $select->execute();
 

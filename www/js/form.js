@@ -140,7 +140,7 @@ async function loadProductForEdit(identifier, isCode) {
 }
 
 function fillForm(producto) {
-    document.getElementById('codeqr').value = producto.codigo ?? '';
+    document.getElementById('codeqr').value = producto.id ?? '';
     setCodeReadOnly(true);
     document.getElementById('name').value = producto.nombre ?? '';
     document.getElementById('description').value = producto.descripcion ?? '';
