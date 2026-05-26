@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('searchInput');
 
     // Endpoint de la API de productos (usando la misma que inventario.js)
-    const API_URL = 'http://localhost/DDI/API/productos.php';
+    const API_URL = 'https://dandi1333.great-site.net/DDI/API/API/productos.php';
 
     let productosOriginales = [];
 

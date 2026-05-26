@@ -1,10 +1,20 @@
-const API_BASE_URL = 'http://localhost/DDI/API/productos.php';
+const API_BASE_URL = 'https://dandi1333.great-site.net/DDI/API/API/productos.php';
 let formInitialized = false;
 let currentProductId = null;
 
 window.addEventListener('DOMContentLoaded', initForm);
-window.addEventListener('deviceready', initForm);
+window.addEventListener('deviceready', init);
 
+async function init() {
+    await initForm;
+    document.addEventListener('backbutton', onBackButton, false);
+}
+
+function onBackButton(event) {
+    // Evita el comportamiento por defecto (que suele ser cerrar la app de golpe)
+    event.preventDefault();
+    window.href ='ventas.html'
+}
 async function initForm() {
     if (formInitialized) {
         return;
