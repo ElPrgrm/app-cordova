@@ -159,46 +159,119 @@ document.addEventListener('deviceready', function() {
     if (stopScanBtn) stopScanBtn.addEventListener('click', stopScanning);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    const btnGuardar = document.getElementById('btnGuardar');
 
-    if (btnGuardar) {
-        btnGuardar.addEventListener('click', () => {
-            const codigoAGuardar = inputFormulario.value;
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-            if (!codigoAGuardar || codigoAGuardar === 'undefined') {
-                alert("Primero debes escanear un código válido.");
-                return;
+const btnGuardar = document.getElementById('btnGuardar');
+
+if (btnGuardar) {
+
+    btnGuardar.addEventListener('click', () => {
+
+        const codigoAGuardar = inputFormulario.value;
+
+        // Validar código
+        if (!codigoAGuardar || codigoAGuardar === 'undefined') {
+
+            alert("Primero debes escanear un código válido.");
+
+            return;
+        }
+
+        // URL de tu API
+        const urlServidor = 'http://192.168.1.14/PuntoVenta/www/api/productos.php';
+
+        // Crear datos para enviar
+        const formData = new URLSearchParams();
+
+        formData.append('codigo', codigoAGuardar);
+
+        // Enviar petición
+        fetch(urlServidor, {
+            method: 'POST',
+
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+
+            body: formData
+        })
+
+        .then(async (respuesta) => {
+
+            // Convertir respuesta a texto
+            const texto = await respuesta.text();
+
+            console.log("Respuesta servidor:", texto);
+
+            // Intentar convertir a JSON
+            try {
+
+                return JSON.parse(texto);
+
+            } catch (error) {
+
+                throw new Error("La respuesta no es JSON válido");
+            }
+        })
+
+        .then((datos) => {
+
+            console.log("Datos recibidos:", datos);
+
+            // Producto existente
+            if (datos.status === 'existe') {
+
+                alert(
+                    "¡Producto actualizado!\n\n" +
+                    "Nueva cantidad: " + datos.nueva_cantidad
+                );
+
+                // Limpiar input
+                inputFormulario.value = "";
             }
 
-            // IMPORTANTE: Cambia '192.168.X.X' por la dirección IP real de tu computadora en tu red Wi-Fi
-            const urlServidor = 'http://192.168.1.14/PuntoVenta/www/api/productos.php';
+            // Producto nuevo
+            else if (datos.status === 'nuevo') {
 
-            // Preparamos los datos para enviarlos por POST
-            const formData = new URLSearchParams();
-            formData.append('codigo', codigoAGuardar);
+                alert("Producto nuevo. Redirigiendo al formulario...");
 
-            fetch(urlServidor, {
-                method: 'POST',
-                body: formData
-            })
-            .then(respuesta => respuesta.json())
-            .then(datos => {
-                if (datos.status === 'existe') {
-                    // El producto existía y se sumó 1 a la base de datos
-                    alert("¡Producto actualizado! Nueva cantidad: " + datos.nueva_cantidad);
-                    inputFormulario.value = ""; // Limpiamos el input
-                } else if (datos.status === 'nuevo') {
-                    // El producto no existe, redirigimos a form.html pasando el código por la URL
-                    window.location.href = `form.html?codigo=${codigoAGuardar}`;
-                } else if (datos.error) {
-                    alert("Error en el servidor: " + datos.error);
-                }
-            })
-            .catch(error => {
-                console.error('Error en la petición Fetch:', error);
-                alert("No se pudo conectar con el servidor. Revisa tu conexión y la IP.");
-            });
+                window.location.href =
+                    `form.html?codigo=${codigoAGuardar}`;
+            }
+
+            // Error desde PHP
+            else if (datos.error) {
+
+                alert("Error del servidor:\n" + datos.error);
+            }
+
+            // Cualquier otra respuesta
+            else {
+
+                console.warn("Respuesta inesperada:", datos);
+
+                alert("Respuesta inesperada del servidor.");
+            }
+        })
+
+        .catch((error) => {
+
+            console.error("Error Fetch:", error);
+
+            alert(
+                "No se pudo conectar con el servidor.\n\n" +
+                "Verifica:\n" +
+                "- Que XAMPP esté encendido\n" +
+                "- Que la IP sea correcta\n" +
+                "- Que celular y PC estén en la misma red"
+            );
         });
-    }
+
+    });
+
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 }, false);
