@@ -2,241 +2,413 @@ const API_BASE_URL = 'https://elrjtd.online/DDI/API/productos.php';
 let formInitialized = false;
 let currentProductId = null;
 
-window.addEventListener('DOMContentLoaded', initForm);
-document.addEventListener('deviceready', init);
+document.addEventListener('deviceready', function() {
 
-async function init() {
-    await initForm;
-    document.addEventListener('backbutton', onBackButton, false);
-}
+    // REFERENCIAS HTML
+    const barkoderView = document.getElementById('barkoderView');
+    const startScanBtn = document.getElementById('startScanBtn');
+    const stopScanBtn = document.getElementById('stopScanBtn');
+    const inputFormulario = document.getElementById("input-codigo-manual");
 
-function onBackButton(event) {
-    // Evita el comportamiento por defecto (que suele ser cerrar la app de golpe)
-    event.preventDefault();
-    window.href ='ventas.html'
-}
+    // RESULTADOS VISUALES
+    const resultContainer = document.getElementById('resultContainer');
+    const resultText = document.getElementById('resultText');
+    const resultType = document.getElementById('resultType');
+    const resultImage = document.getElementById('resultImage');
 
-async function initForm() {
-    if (formInitialized) {
-        return;
-    }
+    let isScanning = false;
 
-    const form = document.getElementById('product-form');
-    if (!form) {
-        return;
-    }
+    if (startScanBtn) startScanBtn.disabled = false;
 
-    formInitialized = true;
-    form.addEventListener('submit', onFormSubmit);
+    //////////////////////////////////////////////////////////////////////
+    // TIPOS DE CÓDIGOS
+    //////////////////////////////////////////////////////////////////////
 
-    const codeInput = document.getElementById('codeqr');
-    const modeAdd = getQueryParam('modeAdd');
-    const modeEdit = getQueryParam('modeEdit');
-    const id = getQueryParam('id');
+    const setActiveBarcodeTypes = async () => {
 
-    if(!modeAdd || !modeEdit)
+        try {
 
+            await window.Barkoder.setBarcodeTypeEnabled(BarcodeType.code128, true);
+            await window.Barkoder.setBarcodeTypeEnabled(BarcodeType.code39, true);
+            await window.Barkoder.setBarcodeTypeEnabled(BarcodeType.ean13, true);
 
-    if (codeInput && modeAdd) {
-        codeInput.value = modeAdd;
-        setCodeReadOnly(true);
-        setFormMode('Agregar producto');
-    }
+        } catch (error) {
 
-     if (modeEdit) {
-        await loadProductForEdit(modeEdit, true);
-    } else if (id) {
-        currentProductId = id;
-        await loadProductForEdit(id, false);
-    }
-}
-
-async function onFormSubmit(event) {
-    event.preventDefault();
-    const submitButton = document.getElementById('submitButton');
-    if (submitButton && submitButton.disabled) return; // evitar envíos dobles
-
-    const producto = getFormData();
-    if (!producto) {
-        showMessage('Por favor completa todos los campos correctamente.', true);
-        return;
-    }
-    // Mostrar estado y desactivar botón
-    const originalText = submitButton ? submitButton.textContent : 'Guardar';
-    if (submitButton) {
-        submitButton.disabled = true;
-        submitButton.textContent = currentProductId ? 'Actualizando...' : 'Guardando...';
-    }
-
-    try {
-        const result = currentProductId
-            ? await updateProducto(currentProductId, producto)
-            : await createProducto(producto);
-
-        if (result && result.success) {
-            const message = currentProductId
-                ? 'Producto actualizado correctamente.'
-                : `Producto guardado correctamente con ID: ${result.id}`;
-
-            showMessage(message);
-            if (!currentProductId) {
-                document.getElementById('product-form').reset();
-            }
-        } else {
-            showMessage(result.error || 'No se pudo guardar el producto.', true);
+            console.error('Error config tipos:', error);
         }
-    } catch (error) {
-        console.error('Error en la petición al servidor:', error);
-        showMessage('No se pudo guardar el producto. Revisa la consola.', true);
-    } finally {
-        if (submitButton) {
-            submitButton.disabled = false;
-            submitButton.textContent = originalText;
-        }
-    }
-}
-
-async function createProducto(productoData) {
-    const response = await fetch(API_BASE_URL, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(productoData)
-    });
-
-    if (!response.ok) {
-        const errorBody = await tryParseJson(response);
-        return { success: false, error: errorBody?.error || `Error HTTP ${response.status}` };
-    }
-
-    return response.json();
-}
-
-async function updateProducto(id, productoData) {
-    const response = await fetch(`${API_BASE_URL}?id=${encodeURIComponent(id)}`, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json'
-
-
-        },
-        body: JSON.stringify(productoData)
-    });
-
-    if (!response.ok) {
-        const errorBody = await tryParseJson(response);
-        return { success: false, error: errorBody?.error || `Error HTTP ${response.status}` };
-    }
-
-    return response.json();
-}
-
-async function loadProductForEdit(identifier, isCode) {
-    const queryParam = 'id';
-    const response = await fetch(`${API_BASE_URL}?${queryParam}=${encodeURIComponent(identifier)}`);
-
-    if (!response.ok) {
-        const errorBody = await tryParseJson(response);
-        showMessage(errorBody?.error || `No se encontró el producto (HTTP ${response.status}).`, true);
-        return;
-    }
-
-    const result = await response.json();
-    if (!result.success || !result.data) {
-        showMessage(result.error || 'No se pudo cargar el producto para edición.', true);
-        return;
-    }
-
-    currentProductId = result.data.id;
-    fillForm(result.data);
-    setFormMode('Actualizar producto');
-}
-
-function fillForm(producto) {
-    document.getElementById('codeqr').value = producto.id ?? '';
-    setCodeReadOnly(true);
-    document.getElementById('name').value = producto.nombre ?? '';
-    document.getElementById('description').value = producto.descripcion ?? '';
-    document.getElementById('price').value = producto.precio ?? '';
-    document.getElementById('quantity').value = producto.cantidad ?? '';
-}
-
-function setCodeReadOnly(isReadOnly) {
-    const codeInput = document.getElementById('codeqr');
-    if (!codeInput) {
-        return;
-    }
-    codeInput.readOnly = isReadOnly;
-    codeInput.setAttribute('aria-readonly', isReadOnly ? 'true' : 'false');
-    if (isReadOnly) {
-        codeInput.classList.add('readonly-field');
-    } else {
-        codeInput.classList.remove('readonly-field');
-    }
-}
-
-function setFormMode(label) {
-    const submitButton = document.getElementById('submitButton') || document.querySelector('#product-form button[type="submit"]');
-    if (submitButton) {
-        submitButton.textContent = label;
-        submitButton.disabled = false;
-    }
-}
-
-function getQueryParam(name) {
-    const params = new URLSearchParams(window.location.search);
-    const value = params.get(name);
-    return value ? value.trim() : null;
-}
-
-async function tryParseJson(response) {
-    try {
-        return await response.json();
-    } catch {
-        return null;
-    }
-}
-
-function getFormData() {
-    const codeqr = document.getElementById('codeqr')?.value.trim();
-    const nombre = document.getElementById('name')?.value.trim();
-    const descripcion = document.getElementById('description')?.value.trim();
-    const precioValue = document.getElementById('price')?.value.trim();
-    const cantidadValue = document.getElementById('quantity')?.value.trim();
-
-    const precio = parseFloat(precioValue);
-    const cantidad = parseInt(cantidadValue, 10);
-
-    if (!codeqr || !nombre || !descripcion || isNaN(precio) || isNaN(cantidad)) {
-        return null;
-    }
-
-    return {
-        id: codeqr,
-        nombre,
-        descripcion,
-        precio,
-        cantidad,
     };
-}
 
+    //////////////////////////////////////////////////////////////////////
+    // SETTINGS
+    //////////////////////////////////////////////////////////////////////
 
+    const setBarkoderSettings = async () => {
 
+        try {
 
+            window.Barkoder.setRegionOfInterestVisible(true);
 
+            window.Barkoder.setRegionOfInterest(5, 5, 90, 90);
 
-function showMessage(text, isError = false) {
-    const messageElement = document.getElementById('formMessage');
-    if (!messageElement) {
-        alert(text);
-        return;
-    }
-    messageElement.textContent = text;
-    messageElement.classList.add('visible');
-    messageElement.style.backgroundColor = isError ? '#fee2e2' : '#eff6ff';
-    messageElement.style.color = isError ? '#b91c1c' : '#1d4ed8';
-    setTimeout(() => {
-        messageElement.classList.remove('visible');
-    }, 4800);
-}
+            window.Barkoder.setCloseSessionOnResultEnabled(true);
+
+            window.Barkoder.setImageResultEnabled(true);
+
+            window.Barkoder.setBarcodeThumbnailOnResultEnabled(true);
+
+            window.Barkoder.setBeepOnSuccessEnabled(true);
+
+            window.Barkoder.setPinchToZoomEnabled(true);
+
+            window.Barkoder.setZoomFactor(2.0);
+
+        } catch (error) {
+
+            console.error('Error settings:', error);
+        }
+    };
+
+    //////////////////////////////////////////////////////////////////////
+    // RESET UI
+    //////////////////////////////////////////////////////////////////////
+
+    const resetUI = () => {
+
+        if (startScanBtn) startScanBtn.disabled = false;
+
+        if (stopScanBtn) stopScanBtn.disabled = true;
+
+        if (barkoderView) barkoderView.style.display = "none";
+    };
+
+    //////////////////////////////////////////////////////////////////////
+    // INICIAR ESCANEO
+    //////////////////////////////////////////////////////////////////////
+
+    const startScanning = async () => {
+
+        if (!barkoderView) return;
+
+        isScanning = true;
+
+        if (startScanBtn) startScanBtn.disabled = true;
+
+        if (stopScanBtn) stopScanBtn.disabled = false;
+
+        if (resultContainer) resultContainer.style.display = 'none';
+
+        barkoderView.style.display = "block";
+
+        try {
+
+            const boundingRect = barkoderView.getBoundingClientRect();
+
+            window.Barkoder.registerWithLicenseKey('PEmBIohr9EZXgCkySoetbwP4gvOfMcGzgxKPL2X6uqNsDDG12C05PmP2q67Lt2_Y5iOIrFsiVzsSGyKh3hYo_-RLArbX9066mPschvXbvHY9UPWiiPmtO-5q5JQy_gHuLKVUyinD5KzFexj_2uVscKgyISui-cMvixwuoKPY5oLOvzIyq8GZfNwENVA-S6C753Cp8An4X-vYPhp8dn7kQuk0dL4VFiIGpKC6pHCF1TL5mo0QDuB6WBsvMeYSoUTFHQ6xCCGqKCK8svx6nYTEK-JdkhS3ni1CyJLwt84Ox-4KE9qyM41V6fvR6jLSGLq9');
+
+            await new Promise((resolve, reject) => {
+
+                window.Barkoder.initialize(
+
+                    Math.round(boundingRect.width),
+                    Math.round(boundingRect.height),
+                    Math.round(boundingRect.x),
+                    Math.round(boundingRect.y),
+
+                    () => resolve(),
+
+                    (error) => reject('Init error: ' + error)
+                );
+            });
+
+            await setBarkoderSettings();
+
+            await setActiveBarcodeTypes();
+
+            //////////////////////////////////////////////////////////////////////
+            // START SCANNING
+            //////////////////////////////////////////////////////////////////////
+
+            window.Barkoder.startScanning(
+
+                async (resultado) => {
+
+                    console.log("OBJETO ESCANEADO ", JSON.stringify(resultado));
+
+                    let numeroDetectado = "";
+
+                    if (
+                        resultado &&
+                        resultado.decoderResults &&
+                        resultado.decoderResults.length > 0
+                    ) {
+
+                        numeroDetectado =
+                            resultado.decoderResults[0].textualData;
+
+                    } else {
+
+                        numeroDetectado =
+                            resultado.textualData ||
+                            resultado.text ||
+                            "";
+                    }
+
+                    console.log("NÚMERO EXTRAÍDO:", numeroDetectado);
+
+                    //////////////////////////////////////////////////////////////////////
+                    // INPUT
+                    //////////////////////////////////////////////////////////////////////
+
+                    if (inputFormulario) {
+
+                        inputFormulario.value = numeroDetectado;
+                    }
+
+                    //////////////////////////////////////////////////////////////////////
+                    // RESULTADOS VISUALES
+                    //////////////////////////////////////////////////////////////////////
+
+                    if (
+                        resultado &&
+                        resultado.decoderResults &&
+                        resultado.decoderResults.length > 0
+                    ) {
+
+                        if (resultText) {
+
+                            resultText.textContent = numeroDetectado;
+
+                            resultText.href = numeroDetectado;
+                        }
+
+                        if (resultType) {
+
+                            resultType.textContent =
+                                resultado.decoderResults[0].barcodeTypeName;
+                        }
+                    }
+
+                    //////////////////////////////////////////////////////////////////////
+                    // CONSULTAR API
+                    //////////////////////////////////////////////////////////////////////
+
+                    try {
+
+                        const response = await fetch(
+                            `${API_BASE_URL}?codigo=${numeroDetectado}`
+                        );
+
+                        const data = await response.json();
+
+                        console.log("RESPUESTA API:", data);
+
+                        //////////////////////////////////////////////////////////////////////
+                        // EXISTE EN BD
+                        //////////////////////////////////////////////////////////////////////
+
+                        if (data.success && data.data.length > 0) {
+
+                            const producto = data.data[0];
+
+                            //////////////////////////////////////////////////////////////////////
+                            // BUSCAR EN TABLA
+                            //////////////////////////////////////////////////////////////////////
+
+                            let filaExistente = document.querySelector(
+                                `tr[data-codigo="${producto.codigo}"]`
+                            );
+
+                            //////////////////////////////////////////////////////////////////////
+                            // YA EXISTÍA -> SUMAR
+                            //////////////////////////////////////////////////////////////////////
+
+                            if (filaExistente) {
+
+                                let inputCantidad =
+                                    filaExistente.querySelector(".cantidad");
+
+                                inputCantidad.value =
+                                    parseInt(inputCantidad.value) + 1;
+
+                                const precio = parseFloat(
+                                    filaExistente.querySelector(".precio").textContent
+                                );
+
+                                const subtotal =
+                                    precio * parseInt(inputCantidad.value);
+
+                                filaExistente.querySelector(".subtotal")
+                                    .textContent = subtotal.toFixed(2);
+
+                                alert(
+                                    "Cantidad aumentada\n\n" +
+                                    producto.nombre
+                                );
+
+                            } else {
+
+                                //////////////////////////////////////////////////////////////////////
+                                // NUEVO EN TABLA
+                                //////////////////////////////////////////////////////////////////////
+
+                                const tabla =
+                                    document.getElementById("tablaProductos");
+
+                                let fila = document.createElement("tr");
+
+                                fila.setAttribute(
+                                    "data-codigo",
+                                    producto.codigo
+                                );
+
+                                fila.innerHTML = `
+                                    <td>${producto.codigo}</td>
+
+                                    <td>${producto.nombre}</td>
+
+                                    <td class="precio">
+                                        ${parseFloat(producto.precio).toFixed(2)}
+                                    </td>
+
+                                    <td>
+                                        <input
+                                            type="number"
+                                            class="cantidad"
+                                            value="1"
+                                            min="1"
+                                        >
+                                    </td>
+
+                                    <td class="subtotal">
+                                        ${parseFloat(producto.precio).toFixed(2)}
+                                    </td>
+                                `;
+
+                                tabla.appendChild(fila);
+
+                                alert(
+                                    "Producto agregado\n\n" +
+                                    producto.nombre
+                                );
+                            }
+
+                            //////////////////////////////////////////////////////////////////////
+                            // TOTAL
+                            //////////////////////////////////////////////////////////////////////
+
+                            let total = 0;
+
+                            document.querySelectorAll(".subtotal")
+                                .forEach(sub => {
+
+                                    total += parseFloat(sub.textContent);
+                                });
+
+                            document.getElementById("total").textContent =
+                                total.toFixed(2);
+
+                        }
+
+                        //////////////////////////////////////////////////////////////////////
+                        // NO EXISTE EN BD
+                        //////////////////////////////////////////////////////////////////////
+
+                        else {
+
+                            alert(
+                                "Producto no registrado\n\n" +
+                                "Se abrirá el formulario"
+                            );
+
+                            window.location.href =
+                                `form.html?codigo=${numeroDetectado}`;
+                        }
+
+                    } catch (error) {
+
+                        console.error(error);
+
+                        alert("Error al consultar API");
+                    }
+
+                    //////////////////////////////////////////////////////////////////////
+                    // CERRAR CÁMARA
+                    //////////////////////////////////////////////////////////////////////
+
+                    window.Barkoder.stopScanning(
+
+                        () => {
+
+                            isScanning = false;
+
+                            resetUI();
+                        },
+
+                        (error) => {
+
+                            console.error(
+                                'Error al forzar cierre automático:',
+                                error
+                            );
+
+                            isScanning = false;
+
+                            resetUI();
+                        }
+                    );
+                },
+
+                //////////////////////////////////////////////////////////////////////
+                // ERROR ESCANEO
+                //////////////////////////////////////////////////////////////////////
+
+                (error) => {
+
+                    console.error('Error al escanear:', error);
+
+                    isScanning = false;
+
+                    resetUI();
+                }
+            );
+
+        } catch (error) {
+
+            console.error('Error general:', error);
+
+            isScanning = false;
+
+            resetUI();
+        }
+    };
+
+    //////////////////////////////////////////////////////////////////////
+    // DETENER MANUAL
+    //////////////////////////////////////////////////////////////////////
+
+    const stopScanning = () => {
+
+        window.Barkoder.stopScanning(
+
+            () => {
+
+                isScanning = false;
+
+                resetUI();
+            },
+
+            (error) => console.error('Error al detener manualmente:', error)
+        );
+    };
+
+    //////////////////////////////////////////////////////////////////////
+    // EVENTOS
+    //////////////////////////////////////////////////////////////////////
+
+    if (startScanBtn)
+        startScanBtn.addEventListener('click', startScanning);
+
+    if (stopScanBtn)
+        stopScanBtn.addEventListener('click', stopScanning);
+
+}, false);
