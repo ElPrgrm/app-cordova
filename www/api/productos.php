@@ -116,7 +116,8 @@ try {
                 exit;
             }
 
-            $allowed = ['codigo', 'nombre', 'descripcion', 'precio', 'cantidad'];
+            // No permitir que el código se actualice una vez creado.
+            $allowed = ['nombre', 'descripcion', 'precio', 'cantidad'];
             $update = $db->update('productos');
             $setCount = 0;
 
