@@ -56,6 +56,77 @@ ALTER TABLE `productos`
 --
 ALTER TABLE `productos`
   MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `ventas`
+--
+
+CREATE TABLE `ventas` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `fecha` datetime NOT NULL DEFAULT current_timestamp(),
+  `total` decimal(10,2) NOT NULL,
+  `estado` varchar(50) NOT NULL DEFAULT 'completada'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Estructura de tabla para la tabla `detalles_venta`
+--
+
+CREATE TABLE `detalles_venta` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `venta_id` int(10) UNSIGNED NOT NULL,
+  `producto_id` int(10) UNSIGNED NOT NULL,
+  `cantidad` int(11) NOT NULL,
+  `precio_unitario` decimal(10,2) NOT NULL,
+  `subtotal` decimal(10,2) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Índices para tablas volcadas
+--
+
+--
+-- Indices de la tabla `ventas`
+--
+ALTER TABLE `ventas`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `detalles_venta`
+--
+ALTER TABLE `detalles_venta`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `venta_id` (`venta_id`),
+  ADD KEY `producto_id` (`producto_id`);
+
+--
+-- AUTO_INCREMENT de las tablas volcadas
+--
+
+--
+-- AUTO_INCREMENT de la tabla `ventas`
+--
+ALTER TABLE `ventas`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `detalles_venta`
+--
+ALTER TABLE `detalles_venta`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- Restricciones para tablas volcadas
+--
+
+--
+-- Filtros para la tabla `detalles_venta`
+--
+ALTER TABLE `detalles_venta`
+  ADD CONSTRAINT `detalles_venta_ibfk_1` FOREIGN KEY (`venta_id`) REFERENCES `ventas` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `detalles_venta_ibfk_2` FOREIGN KEY (`producto_id`) REFERENCES `productos` (`id`) ON DELETE RESTRICT;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

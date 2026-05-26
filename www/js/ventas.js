@@ -1,44 +1,51 @@
+// CONFIGURACIÓN
+const API_BASE_URL = './api/productos.php';
+const API_VENTAS_URL = './api/ventas.php';
+
 // DATOS
 const categories = [
     { key: 'todos', label: 'Todos', icon: 'fa-grid' },
-    { key: 'pastelitos', label: 'Pastelitos Dulces', icon: 'fa-cake' },
-    { key: 'galletas-saladas', label: 'Galletas Saladas', icon: 'fa-cookie-bite' },
-    { key: 'galletas-dulces', label: 'Galletas Dulces', icon: 'fa-candy-cane' },
-    { key: 'botanas', label: 'Botanas', icon: 'fa-bowl-food' },
 ];
 
-const products = [
-    { id: 1, name: 'Twinky Fresa', price: 12.0, category: 'galletas-dulces', emoji: '🍓', image: 'https://via.placeholder.com/80/FF6B6B/white?text=🍓' },
-    { id: 2, name: 'Papas Sabritas', price: 11.0, category: 'botanas', emoji: '🍟', image: 'https://via.placeholder.com/80/FFD93D/white?text=🍟' },
-    { id: 3, name: 'Cacahuates Japoneses', price: 8.0, category: 'botanas', emoji: '🥜', image: 'https://via.placeholder.com/80/FFB347/white?text=🥜' },
-    { id: 4, name: 'Polvorones', price: 15.0, category: 'galletas-dulces', emoji: '🍪', image: 'https://via.placeholder.com/80/D4A5A5/white?text=🍪' },
-    { id: 5, name: 'Gansito', price: 12.0, category: 'galletas-dulces', emoji: '🧁', image: 'https://via.placeholder.com/80/C9E4C5/white?text=🧁' },
-    { id: 6, name: 'Chocoroles', price: 12.0, category: 'galletas-dulces', emoji: '🍫', image: 'https://via.placeholder.com/80/8B5A2B/white?text=🍫' },
-    { id: 7, name: 'Monedero Teal', price: 18.0, category: 'pastelitos', emoji: '👜', image: 'https://via.placeholder.com/80/FFB6C1/white?text=👜' },
-    { id: 8, name: 'Sandalias Franjas', price: 30.0, category: 'pastelitos', emoji: '👡', image: 'https://via.placeholder.com/80/87CEEB/white?text=👡' },
-];
-
+let products = [];
 let selectedCategory = 'todos';
 let searchTerm = '';
-let cart = [
-    { productId: 1, quantity: 2 },
-    { productId: 4, quantity: 1 },
-    { productId: 3, quantity: 2 },
-];
-
-const salesHistory = [
-    { id: 101, date: '2026-05-14', total: 128.5, items: [{ name: 'Twinky Fresa', qty: 2, price: 12.0 }, { name: 'Gansito', qty: 3, price: 12.0 }, { name: 'Papas Sabritas', qty: 1, price: 11.5 }] },
-    { id: 102, date: '2026-05-15', total: 84.0, items: [{ name: 'Polvorones', qty: 2, price: 15.0 }, { name: 'Chocoroles', qty: 2, price: 12.0 }, { name: 'Cacahuates Japoneses', qty: 1, price: 8.0 }] },
-    { id: 103, date: '2026-05-17', total: 56.0, items: [{ name: 'Monedero Teal', qty: 1, price: 18.0 }, { name: 'Twinky Fresa', qty: 2, price: 12.0 }] },
-    { id: 104, date: '2026-05-19', total: 30.0, items: [{ name: 'Sandalias Franjas', qty: 1, price: 30.0 }] },
-    { id: 105, date: '2026-05-20', total: 42.0, items: [{ name: 'Papas Sabritas', qty: 2, price: 11.0 }, { name: 'Chocoroles', qty: 2, price: 12.0 }] },
-    { id: 106, date: '2026-05-21', total: 78.0, items: [{ name: 'Polvorones', qty: 3, price: 15.0 }, { name: 'Twinky Fresa', qty: 1, price: 12.0 }] },
-    { id: 107, date: '2026-05-22', total: 50.0, items: [{ name: 'Monedero Teal', qty: 1, price: 18.0 }, { name: 'Cacahuates Japoneses', qty: 2, price: 8.0 }] }
-];
+let cart = [];
+let salesHistory = [];
+let nextTicketNumber = 1;
 
 // Helpers
 const formatMoney = (val) => `$${val.toFixed(2)}`;
 const getProductById = (id) => products.find(p => p.id === id);
+
+// Cargar productos desde la API
+async function loadProductsFromAPI() {
+    try {
+        const response = await fetch(API_BASE_URL);
+        if (!response.ok) {
+            throw new Error(`Error HTTP ${response.status}`);
+        }
+        const result = await response.json();
+        if (result.success && Array.isArray(result.data)) {
+            products = result.data.map(p => ({
+                id: p.id,
+                name: p.nombre,
+                price: parseFloat(p.precio),
+                description: p.descripcion,
+                cantidad: p.cantidad,
+                codigo: p.codigo,
+                category: 'todos'
+            }));
+            return true;
+        } else {
+            throw new Error('Respuesta inválida de la API');
+        }
+    } catch (error) {
+        console.error('Error cargando productos:', error);
+        showNotification(`Error al cargar productos: ${error.message}`, 'error');
+        return false;
+    }
+}
 
 function getCartDetails() {
     return cart.map(item => {
@@ -50,14 +57,13 @@ function getCartDetails() {
 function computeTotals() {
     const details = getCartDetails();
     const subtotal = details.reduce((acc, i) => acc + i.total, 0);
-    const discount = subtotal * 0.05;
-    const total = subtotal - discount;
-    return { subtotal, discount, total };
+    const total = subtotal;
+    return { subtotal, total };
 }
 
 function updateUI() {
     const details = getCartDetails();
-    const { subtotal, discount, total } = computeTotals();
+    const { subtotal, total } = computeTotals();
 
     const container = document.getElementById('itemList');
     if (!details.length) {
@@ -89,7 +95,6 @@ function updateUI() {
     }
 
     document.getElementById('cartSubtotal').innerHTML = formatMoney(subtotal);
-    document.getElementById('cartDiscount').innerHTML = formatMoney(discount);
     const payBtn = document.querySelector('.btn-primary-action');
     if (payBtn) payBtn.innerHTML = `<i class="fas fa-credit-card me-2"></i>Pagar ${formatMoney(total)}`;
     const mobileBadge = document.getElementById('mobileTotalSpan');
@@ -157,11 +162,12 @@ function renderProducts() {
     grid.innerHTML = filtered.map(p => `
         <div class="product-card" data-pid="${p.id}">
             <div class="product-icon">
-                <img src="${p.image}" alt="${p.name}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 1.5rem;">
+                <i class="fas fa-box" style="font-size: 2.2rem; color: #10b981;"></i>
             </div>
             <div class="product-info">
                 <strong>${p.name}</strong>
                 <span>${formatMoney(p.price)}</span>
+                <div class="small text-muted" style="font-size: 0.7rem; margin-top: 0.25rem;">${p.codigo}</div>
             </div>
         </div>
     `).join('');
@@ -173,7 +179,7 @@ function renderProducts() {
 
 function renderPreviewModal() {
     const details = getCartDetails();
-    const { subtotal, discount, total } = computeTotals();
+    const { subtotal, total } = computeTotals();
     const itemsDiv = document.getElementById('previewItemsList');
 
     if (!details.length) {
@@ -191,7 +197,6 @@ function renderPreviewModal() {
     }
 
     document.getElementById('previewSubtotal').innerHTML = formatMoney(subtotal);
-    document.getElementById('previewDiscount').innerHTML = formatMoney(discount);
     document.getElementById('previewTotalAmount').innerHTML = formatMoney(total);
 }
 
@@ -208,30 +213,107 @@ function closePaymentPreview() {
     document.getElementById('paymentPreview').classList.add('d-none');
 }
 
-function confirmPayment() {
+async function confirmPayment() {
     if (cart.length === 0) return;
-    cart = [];
-    updateUI();
-    closePaymentPreview();
-    showNotification('✅ Pago completado. ¡Ticket cerrado!', 'success');
+
+    const details = getCartDetails();
+    const items = details.map(d => ({
+        producto_id: d.product.id,
+        cantidad: d.quantity,
+        precio_unitario: d.product.price,
+        subtotal: d.total
+    }));
+
+    try {
+        const response = await fetch(API_VENTAS_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ items })
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error HTTP ${response.status}`);
+        }
+
+        const result = await response.json();
+        if (result.success) {
+            const { subtotal, total } = computeTotals();
+            salesHistory.unshift({
+                id: result.venta_id,
+                date: new Date().toLocaleDateString('es-ES'),
+                items: details,
+                total: total
+            });
+
+            nextTicketNumber = result.venta_id + 1;
+            updateTicketDisplay();
+            cart = [];
+            updateUI();
+            closePaymentPreview();
+            showNotification(`Pago completado. Ticket #${String(result.venta_id).padStart(9, '0')}`, 'success');
+        } else {
+            throw new Error(result.error);
+        }
+    } catch (error) {
+        console.error('Error guardando venta:', error);
+        showNotification(`Error al guardar la venta: ${error.message}`, 'error');
+    }
 }
 
 function renderHistoryModal() {
     const listDiv = document.getElementById('historyList');
-    listDiv.innerHTML = salesHistory.map(sale => `
-        <div class="preview-item">
-            <div>
-                <strong><i class="fas fa-receipt"></i> Venta #${sale.id}</strong>
-                <div class="small text-muted"><i class="far fa-calendar-alt"></i> ${sale.date} · ${sale.items.length} artículos</div>
+    if (salesHistory.length === 0) {
+        listDiv.innerHTML = '<div class="text-muted text-center py-4"><i class="fas fa-inbox fa-2x mb-2 d-block"></i>Sin ventas registradas</div>';
+    } else {
+        listDiv.innerHTML = salesHistory.map(sale => `
+            <div class="preview-item">
+                <div>
+                    <strong><i class="fas fa-receipt"></i> Venta #${sale.id}</strong>
+                    <div class="small text-muted"><i class="far fa-calendar-alt"></i> ${sale.date} · ${sale.items.length} articulos</div>
+                </div>
+                <strong class="text-success">${formatMoney(sale.total)}</strong>
             </div>
-            <strong class="text-success">${formatMoney(sale.total)}</strong>
-        </div>
-    `).join('');
+        `).join('');
+    }
 
     const totalSales = salesHistory.length;
     const totalAmount = salesHistory.reduce((acc, s) => acc + s.total, 0);
     document.getElementById('historyCountSpan').innerHTML = totalSales;
     document.getElementById('historyTotalSpan').innerHTML = formatMoney(totalAmount);
+}
+
+async function loadSalesHistory() {
+    try {
+        const response = await fetch(API_VENTAS_URL);
+        if (!response.ok) {
+            throw new Error(`Error HTTP ${response.status}`);
+        }
+        const result = await response.json();
+        if (result.success && Array.isArray(result.data)) {
+            salesHistory = result.data.map(v => ({
+                id: v.id,
+                date: new Date(v.fecha).toLocaleDateString('es-ES'),
+                items: v.detalles,
+                total: v.total
+            }));
+
+            // Calcular el siguiente número de ticket
+            const maxId = salesHistory.length > 0 ? Math.max(...salesHistory.map(s => s.id)) : 0;
+            nextTicketNumber = maxId + 1;
+            updateTicketDisplay();
+        } else {
+            console.warn('Respuesta invalida del historial de ventas');
+        }
+    } catch (error) {
+        console.error('Error cargando historial de ventas:', error);
+    }
+}
+
+function updateTicketDisplay() {
+    const ticketSpan = document.getElementById('currentTicketNumber');
+    if (ticketSpan) {
+        ticketSpan.innerText = `Ticket #${String(nextTicketNumber).padStart(9, '0')}`;
+    }
 }
 
 function openHistory() {
@@ -244,7 +326,22 @@ function closeHistory() {
 }
 
 // Inicialización
-function init() {
+async function init() {
+    // Mostrar indicador de carga
+    const grid = document.getElementById('productGrid');
+    grid.innerHTML = '<div class="text-center py-5"><i class="fas fa-spinner fa-spin fa-3x mb-3 d-block text-muted"></i><p>Cargando productos...</p></div>';
+
+    // Cargar productos y historial de ventas desde la API
+    const [loaded] = await Promise.all([
+        loadProductsFromAPI(),
+        loadSalesHistory()
+    ]);
+
+    if (!loaded || products.length === 0) {
+        grid.innerHTML = '<div class="text-center py-5"><i class="fas fa-exclamation-triangle fa-3x mb-3 d-block text-danger"></i><p>No hay productos disponibles</p></div>';
+        return;
+    }
+
     renderCategories();
     renderProducts();
     updateUI();

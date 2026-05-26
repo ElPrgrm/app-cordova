@@ -19,12 +19,12 @@
                     <div class="header-cart">
                         <div class="brand">
                             <i class="fas fa-store me-2"></i>
-                            <strong>POS Tablet SP+</strong>
+                            <strong>Ventas</strong>
                             <small>Administrador</small>
                         </div>
                         <div class="ticket-number">
                             <i class="far fa-receipt"></i>
-                            <span>Ticket #000000001</span>
+                            <span id="currentTicketNumber">Ticket #000000001</span>
                         </div>
                     </div>
 
@@ -45,10 +45,6 @@
                             <span><i class="fas fa-calculator"></i> Sub-total</span>
                             <span id="cartSubtotal">$0.00</span>
                         </div>
-                        <div class="line">
-                            <span><i class="fas fa-tag"></i> Descuento (5%)</span>
-                            <span id="cartDiscount">$0.00</span>
-                        </div>
                         <button class="btn btn-primary-action" type="button" id="payButtonMobileStyle">
                             <i class="fas fa-credit-card me-2"></i>
                             Pagar $0.00
@@ -68,20 +64,6 @@
                     </div>
 
                     <div class="categories" id="categoriesContainer"></div>
-
-                    <!-- Banner responsivo con imagen -->
-                    <div class="promo-banner mb-4">
-                        <picture>
-                            <source media="(max-width: 576px)" srcset="https://via.placeholder.com/400x120/10b981/white?text=OFERTAS+FLASH">
-                            <source media="(max-width: 991px)" srcset="https://via.placeholder.com/800x150/10b981/white?text=🔥+DESCUENTOS+ESPECIALES+🔥">
-                            <img src="https://via.placeholder.com/1200x180/10b981/white?text=🎉+PROMOCIONES+DE+TEMPORADA+🎉" alt="Promociones especiales" class="img-fluid rounded-3 w-100" style="object-fit: cover;">
-                        </picture>
-                        <div class="banner-overlay">
-                            <span class="badge bg-danger">-20%</span>
-                            <span class="badge bg-warning">Envío gratis</span>
-                        </div>
-                    </div>
-
                     <div class="product-grid" id="productGrid"></div>
                 </aside>
             </div>
@@ -103,10 +85,6 @@
                     <div class="d-flex justify-content-between">
                         <span><i class="fas fa-calculator"></i> Sub-total</span>
                         <strong id="previewSubtotal">$0.00</strong>
-                    </div>
-                    <div class="d-flex justify-content-between mt-1">
-                        <span><i class="fas fa-tag"></i> Descuento (5%)</span>
-                        <strong id="previewDiscount">$0.00</strong>
                     </div>
                     <div class="d-flex justify-content-between total-line mt-2 pt-2">
                         <span><i class="fas fa-money-bill-wave"></i> Total</span>
