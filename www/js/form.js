@@ -18,7 +18,7 @@ async function initForm() {
     formInitialized = true;
     form.addEventListener('submit', onFormSubmit);
 
-    const id = getQueryParam('id');
+    const id = getQueryParam('modeEdit');
     if (id) {
         currentProductId = id;
         await loadProductForEdit(id);
@@ -27,11 +27,19 @@ async function initForm() {
 
 async function onFormSubmit(event) {
     event.preventDefault();
+    const submitButton = document.getElementById('submitButton');
+    if (submitButton && submitButton.disabled) return; // evitar envíos dobles
 
     const producto = getFormData();
     if (!producto) {
         showMessage('Por favor completa todos los campos correctamente.', true);
         return;
+    }
+    // Mostrar estado y desactivar botón
+    const originalText = submitButton ? submitButton.textContent : 'Guardar';
+    if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.textContent = currentProductId ? 'Actualizando...' : 'Guardando...';
     }
 
     try {
@@ -54,6 +62,11 @@ async function onFormSubmit(event) {
     } catch (error) {
         console.error('Error en la petición al servidor:', error);
         showMessage('No se pudo guardar el producto. Revisa la consola.', true);
+    } finally {
+        if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.textContent = originalText;
+        }
     }
 }
 
@@ -80,7 +93,7 @@ async function updateProducto(id, productoData) {
         headers: {
             'Content-Type': 'application/json'
 
-            
+
         },
         body: JSON.stringify(productoData)
     });
@@ -121,9 +134,10 @@ function fillForm(producto) {
 }
 
 function setFormMode(label) {
-    const submitButton = document.querySelector('#product-form button[type="submit"]');
+    const submitButton = document.getElementById('submitButton') || document.querySelector('#product-form button[type="submit"]');
     if (submitButton) {
         submitButton.textContent = label;
+        submitButton.disabled = false;
     }
 }
 

@@ -79,11 +79,13 @@ form {
 .form-actions {
     margin-top: 12px;
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
 }
 
-.form-actions button {
-    min-width: 160px;
+.form-actions button, .form-actions a {
+    min-width: 140px;
     padding: 13px 20px;
     border: none;
     border-radius: 999px;
@@ -95,10 +97,25 @@ form {
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.form-actions button:hover,
-.form-actions button:focus {
+.form-actions button, .form-actions a:hover,
+.form-actions button, .form-actions a:focus {
     transform: translateY(-1px);
     box-shadow: 0 14px 30px rgba(59, 130, 246, 0.25);
+}
+
+/* Estilo secundario para el enlace "Volver al menú" dentro de form-actions */
+.form-actions .btn-secundario {
+    background: transparent;
+    color: #0f172a;
+    border: 1px solid #e5e7eb;
+    box-shadow: none;
+    font-weight: 600;
+}
+
+.form-actions .btn-secundario:hover {
+    background-color: #f1f5f9;
+    color: #0f172a;
+    transform: translateY(-1px);
 }
 
 @media screen and (max-width: 480px) {
@@ -119,8 +136,13 @@ form {
         font-size: 1rem;
     }
 
-    .form-actions button {
+    .form-actions button, .form-actions a {
         width: 100%;
+    }
+
+    .form-actions {
+        flex-direction: column;
+        gap: 12px;
     }
 }
 
