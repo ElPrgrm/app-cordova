@@ -1,6 +1,6 @@
 // CONFIGURACIÓN
-const API_BASE_URL = './api/productos.php';
-const API_VENTAS_URL = './api/ventas.php';
+const API_BASE_URL = 'http://localhost/DDI/API/productos.php';
+const API_VENTAS_URL = 'http://localhost/DDI/API/ventas.php';
 
 // DATOS
 const categories = [
@@ -19,13 +19,24 @@ const formatMoney = (val) => `$${val.toFixed(2)}`;
 const getProductById = (id) => products.find(p => p.id === id);
 
 // Cargar productos desde la API
+function parseJsonResponse(response) {
+    return response.text().then(text => {
+        try {
+            return JSON.parse(text);
+        } catch (error) {
+            const preview = text.trim().slice(0, 300).replace(/\s+/g, ' ');
+            throw new Error(`Respuesta no JSON de la API: ${preview}`);
+        }
+    });
+}
+
 async function loadProductsFromAPI() {
     try {
         const response = await fetch(API_BASE_URL);
         if (!response.ok) {
             throw new Error(`Error HTTP ${response.status}`);
         }
-        const result = await response.json();
+        const result = await parseJsonResponse(response);
         if (result.success && Array.isArray(result.data)) {
             products = result.data.map(p => ({
                 id: p.id,
@@ -235,7 +246,7 @@ async function confirmPayment() {
             throw new Error(`Error HTTP ${response.status}`);
         }
 
-        const result = await response.json();
+        const result = await parseJsonResponse(response);
         if (result.success) {
             const { subtotal, total } = computeTotals();
             salesHistory.unshift({
@@ -288,7 +299,7 @@ async function loadSalesHistory() {
         if (!response.ok) {
             throw new Error(`Error HTTP ${response.status}`);
         }
-        const result = await response.json();
+        const result = await parseJsonResponse(response);
         if (result.success && Array.isArray(result.data)) {
             salesHistory = result.data.map(v => ({
                 id: v.id,
@@ -326,7 +337,29 @@ function closeHistory() {
 }
 
 // Inicialización
+function ensureHttpServerMode() {
+    if (isHttpProtocol) return true;
+
+    const grid = document.getElementById('productGrid');
+    if (grid) {
+        grid.innerHTML = `
+            <div class="text-center py-5">
+                <i class="fas fa-exclamation-triangle fa-3x mb-3 d-block text-danger"></i>
+                <p>Esta página debe abrirse desde un servidor HTTP/PHP.</p>
+                <p>Usa <strong>http://localhost:8000/ventas.html</strong> en lugar de abrir el archivo directamente.</p>
+            </div>
+        `;
+    }
+
+    showNotification('Abre esta página desde un servidor HTTP/PHP. Usa http://localhost:8000/ventas.html', 'error');
+    return false;
+}
+
 async function init() {
+    if (!ensureHttpServerMode()) {
+        return;
+    }
+
     // Mostrar indicador de carga
     const grid = document.getElementById('productGrid');
     grid.innerHTML = '<div class="text-center py-5"><i class="fas fa-spinner fa-spin fa-3x mb-3 d-block text-muted"></i><p>Cargando productos...</p></div>';
