@@ -1,277 +1,526 @@
+// ===============================
+// CONFIG
+// ===============================
+
 const API_BASE_URL = 'https://elrjtd.online/DDI/API/productos.php';
+
 let formInitialized = false;
 let currentProductId = null;
 
 
-document.addEventListener('deviceready', function() {
-    // 1. Referencias a HTML
+// DEVICEREADY
+
+
+document.addEventListener('deviceready', function () {
+
+    
+    // REFERENCIAS HTML
+    
+
     const barkoderView = document.getElementById('barkoderView');
     const startScanBtn = document.getElementById('startScanBtn');
     const stopScanBtn = document.getElementById('stopScanBtn');
     const inputFormulario = document.getElementById("input-codigo-manual");
-    
-    // Referencias al contenedor de resultados visuales (opcional)
+
     const resultContainer = document.getElementById('resultContainer');
     const resultText = document.getElementById('resultText');
     const resultType = document.getElementById('resultType');
     const resultImage = document.getElementById('resultImage');
-    
+
+    const btnGuardar = document.getElementById('btnGuardar');
+
     let isScanning = false;
 
-    if (startScanBtn) startScanBtn.disabled = false;
+    if (startScanBtn) {
+        startScanBtn.disabled = false;
+    }
 
-    // 2. Configurar códigos permitidos
+    
+
     const setActiveBarcodeTypes = async () => {
+
         try {
-            await window.Barkoder.setBarcodeTypeEnabled(BarcodeType.code128, true);
-            await window.Barkoder.setBarcodeTypeEnabled(BarcodeType.code39, true);
-            await window.Barkoder.setBarcodeTypeEnabled(BarcodeType.ean13, true);
+
+            await window.Barkoder.setBarcodeTypeEnabled(
+                BarcodeType.code128,
+                true
+            );
+
+            await window.Barkoder.setBarcodeTypeEnabled(
+                BarcodeType.code39,
+                true
+            );
+
+            await window.Barkoder.setBarcodeTypeEnabled(
+                BarcodeType.ean13,
+                true
+            );
+
         } catch (error) {
-            console.error('Error config tipos:', error);
+
+            console.error('Error tipos barcode:', error);
         }
     };
 
-    // 3. Ajustes de camaara
+    
     const setBarkoderSettings = async () => {
+
         try {
+
             window.Barkoder.setRegionOfInterestVisible(true);
-            window.Barkoder.setRegionOfInterest(5, 5, 90, 90);
-            
-            //  terminer la sesión de escaner  interna al encontrar el código
-            window.Barkoder.setCloseSessionOnResultEnabled(true); 
-            
+
+            window.Barkoder.setRegionOfInterest(
+                5,
+                5,
+                90,
+                90
+            );
+
+            window.Barkoder.setCloseSessionOnResultEnabled(true);
+
             window.Barkoder.setImageResultEnabled(true);
+
             window.Barkoder.setBarcodeThumbnailOnResultEnabled(true);
+
             window.Barkoder.setBeepOnSuccessEnabled(true);
+
             window.Barkoder.setPinchToZoomEnabled(true);
+
             window.Barkoder.setZoomFactor(2.0);
+
         } catch (error) {
+
             console.error('Error settings:', error);
         }
     };
 
-    // 4. Función de reinicio de interfaz
+    
     const resetUI = () => {
-        if (startScanBtn) startScanBtn.disabled = false;
-        if (stopScanBtn) stopScanBtn.disabled = true;
-        if (barkoderView) barkoderView.style.display = "none"; // Oculta el recuadro negro/rojo
+
+        if (startScanBtn) {
+            startScanBtn.disabled = false;
+        }
+
+        if (stopScanBtn) {
+            stopScanBtn.disabled = true;
+        }
+
+        if (barkoderView) {
+            barkoderView.style.display = "none";
+        }
     };
 
-   
+    
+
     const startScanning = async () => {
-        if (!barkoderView) return;
+
+        if (!barkoderView) {
+            return;
+        }
 
         isScanning = true;
-        if (startScanBtn) startScanBtn.disabled = true;
-        if (stopScanBtn) stopScanBtn.disabled = false;
-        if (resultContainer) resultContainer.style.display = 'none';
-        
-        barkoderView.style.display = "block"; 
+
+        if (startScanBtn) {
+            startScanBtn.disabled = true;
+        }
+
+        if (stopScanBtn) {
+            stopScanBtn.disabled = false;
+        }
+
+        if (resultContainer) {
+            resultContainer.style.display = 'none';
+        }
+
+        barkoderView.style.display = "block";
 
         try {
-            const boundingRect = barkoderView.getBoundingClientRect();
+
+            const boundingRect =
+                barkoderView.getBoundingClientRect();
+
+            
+            // LICENCIA
+         
+
+            window.Barkoder.registerWithLicenseKey(
+                'PEmBIohr9EZXgCkySoetbwP4gvOfMcGzgxKPL2X6uqNsDDG12C05PmP2q67Lt2_Y5iOIrFsiVzsSGyKh3hYo_-RLArbX9066mPschvXbvHY9UPWiiPmtO-5q5JQy_gHuLKVUyinD5KzFexj_2uVscKgyISui-cMvixwuoKPY5oLOvzIyq8GZfNwENVA-S6C753Cp8An4X-vYPhp8dn7kQuk0dL4VFiIGpKC6pHCF1TL5mo0QDuB6WBsvMeYSoUTFHQ6xCCGqKCK8svx6nYTEK-JdkhS3ni1CyJLwt84Ox-4KE9qyM41V6fvR6jLSGLq9'
+            );
 
            
-            window.Barkoder.registerWithLicenseKey('PEmBIohr9EZXgCkySoetbwP4gvOfMcGzgxKPL2X6uqNsDDG12C05PmP2q67Lt2_Y5iOIrFsiVzsSGyKh3hYo_-RLArbX9066mPschvXbvHY9UPWiiPmtO-5q5JQy_gHuLKVUyinD5KzFexj_2uVscKgyISui-cMvixwuoKPY5oLOvzIyq8GZfNwENVA-S6C753Cp8An4X-vYPhp8dn7kQuk0dL4VFiIGpKC6pHCF1TL5mo0QDuB6WBsvMeYSoUTFHQ6xCCGqKCK8svx6nYTEK-JdkhS3ni1CyJLwt84Ox-4KE9qyM41V6fvR6jLSGLq9');
+            // INICIALIZAR
+        
 
             await new Promise((resolve, reject) => {
+
                 window.Barkoder.initialize(
+
                     Math.round(boundingRect.width),
                     Math.round(boundingRect.height),
                     Math.round(boundingRect.x),
                     Math.round(boundingRect.y),
+
                     () => resolve(),
-                    (error) => reject('Init error: ' + error)
+
+                    (error) =>
+                        reject('Init error: ' + error)
                 );
             });
 
             await setBarkoderSettings();
+
             await setActiveBarcodeTypes();
 
+           
+            // ESCANEAR
+           
+
             window.Barkoder.startScanning(
+
+                // SUCCESS
                 (resultado) => {
-                    console.log("OBJETO ESCANEADO ", JSON.stringify(resultado));
 
-                    // Extracción garantizada basada en tu respuesta de consola
+                    console.log(
+                        "OBJETO ESCANEADO",
+                        JSON.stringify(resultado)
+                    );
+
                     let numeroDetectado = "";
-                    if (resultado && resultado.decoderResults && resultado.decoderResults.length > 0) {
-                        numeroDetectado = resultado.decoderResults[0].textualData;
+
+                    if (
+                        resultado &&
+                        resultado.decoderResults &&
+                        resultado.decoderResults.length > 0
+                    ) {
+
+                        numeroDetectado =
+                            resultado.decoderResults[0]
+                            .textualData;
+
                     } else {
-                        numeroDetectado = resultado.textualData || resultado.text || "";
+
+                        numeroDetectado =
+                            resultado.textualData ||
+                            resultado.text ||
+                            "";
                     }
 
-                    console.log("NÚMERO EXTRAÍDO:", numeroDetectado);
+                    console.log(
+                        "NÚMERO EXTRAÍDO:",
+                        numeroDetectado
+                    );
 
-                    // Escribimos en el formulario de inmediato
+                   
+                    // ESCRIBIR EN INPUT
+                 
+
                     if (inputFormulario) {
-                        inputFormulario.value = numeroDetectado;
+
+                        inputFormulario.value =
+                            numeroDetectado;
                     }
 
-                    // Actualizamos la miniatura visual inferior (opcional)
-                    if (resultado && resultado.decoderResults && resultado.decoderResults.length > 0) {
+                   
+
+                    if (
+                        resultado &&
+                        resultado.decoderResults &&
+                        resultado.decoderResults.length > 0
+                    ) {
+
                         if (resultText) {
-                            resultText.textContent = numeroDetectado;
-                            resultText.href = numeroDetectado;
+
+                            resultText.textContent =
+                                numeroDetectado;
+
+                            resultText.href =
+                                numeroDetectado;
                         }
-                        if (resultType) resultType.textContent = resultado.decoderResults[0].barcodeTypeName;
+
+                        if (resultType) {
+
+                            resultType.textContent =
+                                resultado.decoderResults[0]
+                                .barcodeTypeName;
+                        }
                     }
 
-                    // FORZAR CIERRE AUTOMÁTICO DE LA CÁMARA TRAS LA DETECCIÓN
+                    
+                    // DETENER ESCANEO
+                    
+
                     window.Barkoder.stopScanning(
+
                         () => {
+
                             isScanning = false;
-                            resetUI(); // Oculta la vista HTML y reestablece botones
+
+                            resetUI();
                         },
+
                         (error) => {
-                            console.error('Error al forzar cierre automático:', error);
+
+                            console.error(
+                                'Error cierre:',
+                                error
+                            );
+
                             isScanning = false;
+
                             resetUI();
                         }
                     );
                 },
+
+                // ERROR
                 (error) => {
-                    console.error('Error al escanear:', error);
+
+                    console.error(
+                        'Error escaneo:',
+                        error
+                    );
+
                     isScanning = false;
+
                     resetUI();
                 }
             );
 
         } catch (error) {
+
             console.error('Error general:', error);
+
             isScanning = false;
+
             resetUI();
         }
     };
 
-    // 6. Detención manual 
+    
+
     const stopScanning = () => {
+
         window.Barkoder.stopScanning(
+
             () => {
+
                 isScanning = false;
+
                 resetUI();
             },
-            (error) => console.error('Error al detener manualmente:', error)
+
+            (error) => {
+
+                console.error(
+                    'Error detener:',
+                    error
+                );
+            }
         );
     };
 
-    // 7. Asignar eventos a los botones
-    if (startScanBtn) startScanBtn.addEventListener('click', startScanning);
-    if (stopScanBtn) stopScanBtn.addEventListener('click', stopScanning);
+    
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    if (startScanBtn) {
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        startScanBtn.addEventListener(
+            'click',
+            startScanning
+        );
+    }
 
-const btnGuardar = document.getElementById('btnGuardar');
+    if (stopScanBtn) {
+
+        stopScanBtn.addEventListener(
+            'click',
+            stopScanning
+        );
+    }
+
+  
+  
 
 if (btnGuardar) {
 
-    btnGuardar.addEventListener('click', () => {
+    btnGuardar.addEventListener(
+        'click',
 
-        const codigoAGuardar = inputFormulario.value;
+        async () => {
 
-        // Validar código
-        if (!codigoAGuardar || codigoAGuardar === 'undefined') {
+            const codigoAGuardar =
+                inputFormulario.value.trim();
 
-            alert("Primero debes escanear un código válido.");
+           
+            // VALIDACIÓN
+            
+            if (
+                !codigoAGuardar ||
+                codigoAGuardar === 'undefined'
+            ) {
 
-            return;
-        }
+                alert(
+                    "Primero debes escanear un código válido."
+                );
 
-        // URL de tu API
-        const urlServidor = 'https://elrjtd.online/DDI/API/productos.php';
+                return;
+            }
 
-        // Crear datos para enviar
-        const formData = new URLSearchParams();
-
-        formData.append('id', codigoAGuardar);
-
-        // Enviar petición
-        fetch(urlServidor, {
-            method: 'POST',
-
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-
-            body: formData
-        })
-
-        .then(async (respuesta) => {
-
-            // Convertir respuesta a texto
-            const texto = await respuesta.text();
-
-            console.log("Respuesta servidor:", texto);
-
-            // Intentar convertir a JSON
             try {
 
-                return JSON.parse(texto);
+                
+
+                console.log(
+                    "Enviando a:",
+                    API_BASE_URL
+                );
+
+                console.log(
+                    "Código enviado:",
+                    codigoAGuardar
+                );
+
+                
+
+                const respuesta =
+                    await fetch(
+                        API_BASE_URL,
+                        {
+
+                            method: 'POST',
+
+                            headers: {
+                                'Content-Type':
+                                    'application/json'
+                            },
+
+                            body: JSON.stringify({
+                                id: codigoAGuardar
+                            })
+                        }
+                    );
+
+                console.log(
+                    "Status HTTP:",
+                    respuesta.status
+                );
+
+                const textoRespuesta =
+                    await respuesta.text();
+
+                console.log(
+                    "Respuesta RAW:",
+                    textoRespuesta
+                );
+
+               
+
+                let datos;
+
+                try {
+
+                    datos =
+                        JSON.parse(textoRespuesta);
+
+                } catch (jsonError) {
+
+                    console.error(
+                        "JSON inválido:",
+                        jsonError
+                    );
+
+                    alert(
+                        "La API no devolvió JSON válido.\n\n" +
+                        textoRespuesta
+                    );
+
+                    return;
+                }
+
+                console.log(
+                    "Respuesta API:",
+                    datos
+                );
+
+                
+                // PRODUCTO EXISTENTE
+                
+                if (
+                    datos.status === 'existe'
+                ) {
+
+                    alert(
+                        "Producto actualizado correctamente\n\n" +
+                        "Nueva cantidad: " +
+                        datos.nueva_cantidad
+                    );
+
+                    inputFormulario.value = "";
+
+                    return;
+                }
+
+              
+                // PRODUCTO NUEVO
+         
+
+                if (
+                    datos.status === 'nuevo'
+                ) {
+
+                    alert(
+                        "Producto no registrado.\n" +
+                        "Se abrirá el ñformulario."
+                    );
+
+                    window.location.href =
+                        `form.html?modeAdd=${encodeURIComponent(codigoAGuardar)}`;
+
+                    return;
+                }
+
+                
+                // ERROR SERVIDOR
+               
+
+                if (datos.error) {
+
+                    alert(
+                        "Error del servidor:\n\n" +
+                        datos.error
+                    );
+
+                    return;
+                }
+
+                // RESPUESTA RARA
+
+                console.warn(
+                    "Respuesta inesperada:",
+                    datos
+                );
+
+                alert(
+                    "Respuesta inesperada del servidor."
+                );
 
             } catch (error) {
 
-                throw new Error("La respuesta no es JSON válido");
-            }
-        })
+               
+                // ERROR REAL
+          
 
-        .then((datos) => {
-
-            console.log("Datos recibidos:", datos);
-
-            // Producto existente
-            if (datos.status === 'existe') {
-
-                alert(
-                    "¡Producto actualizado!\n\n" +
-                    "Nueva cantidad: " + datos.nueva_cantidad
+                console.error(
+                    "ERROR COMPLETO:",
+                    error
                 );
 
-                // Limpiar input
-                inputFormulario.value = "";
+                alert(
+                    "ERROR REAL:\n\n" +
+                    error.message
+                );
             }
-
-            // Producto nuevo
-            else if (datos.status === 'nuevo') {
-
-                alert("Producto nuevo. Redirigiendo al formulario...");
-
-                window.location.href =
-                    `form.html?id=${codigoAGuardar}`;
-            }
-
-            // Error desde PHP
-            else if (datos.error) {
-
-                alert("Error del servidor:\n" + datos.error);
-            }
-
-            // Cualquier otra respuesta
-            else {
-
-                console.warn("Respuesta inesperada:", datos);
-
-                alert("Respuesta inesperada del servidor.");
-            }
-        })
-
-        .catch((error) => {
-
-            console.error("Error Fetch:", error);
-
-            alert(
-                "No se pudo conectar con el servidor.\n\n" +
-                "Verifica:\n" +
-                "- Que XAMPP esté encendido\n" +
-                "- Que la IP sea correcta\n" +
-                "- Que celular y PC estén en la misma red"
-            );
-        });
-
-    });
-
+        }
+    );
 }
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 }, false);
