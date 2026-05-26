@@ -24,6 +24,14 @@ try {
 
 $method = $_SERVER['REQUEST_METHOD'];
 $id = isset($_GET['id']) ? intval($_GET['id']) : null;
+$codigo = isset($_GET['codigo']) ? trim($_GET['codigo']) : null;
+$modeEdit = isset($_GET['modeEdit']) ? trim($_GET['modeEdit']) : null;
+$modeAdd = isset($_GET['modeAdd']) ? trim($_GET['modeAdd']) : null;
+
+if (!$codigo && $modeEdit) {
+    $codigo = $modeEdit;
+}
+
 $input = json_decode(file_get_contents('php://input'), true) ?: $_POST;
 
 try {
@@ -39,6 +47,28 @@ try {
 
                 $select = $db->select('productos');
                 $select->where('id', '=', $id);
+
+                $rows = $select->execute();
+
+                if (empty($rows)) {
+                    http_response_code(404);
+
+                    echo json_encode([
+                        'success' => false,
+                        'error' => 'Producto no encontrado'
+                    ]);
+                    exit;
+                }
+
+                echo json_encode([
+                    'success' => true,
+                    'data' => $rows[0]
+                ], JSON_UNESCAPED_UNICODE);
+
+            } elseif ($codigo) {
+
+                $select = $db->select('productos');
+                $select->where('codigo', '=', $codigo);
 
                 $rows = $select->execute();
 
@@ -183,20 +213,19 @@ try {
         // =========================
         case 'PUT':
 
-            if (!$id) {
+            if (!$id && !$codigo) {
 
                 http_response_code(400);
 
                 echo json_encode([
                     'success' => false,
-                    'error' => 'Se requiere id en la query string'
+                    'error' => 'Se requiere id o código en la query string'
                 ]);
 
                 exit;
             }
 
             $allowed = [
-                'codigo',
                 'nombre',
                 'descripcion',
                 'precio',
@@ -229,7 +258,11 @@ try {
                 exit;
             }
 
-            $update->where('id', '=', $id);
+            if ($id) {
+                $update->where('id', '=', $id);
+            } else {
+                $update->where('codigo', '=', $codigo);
+            }
 
             $affected = $update->execute();
 
