@@ -37,26 +37,24 @@ async function initForm() {
 
     // CASO 1: Modo Añadir Producto (Viene con el ID/Código escaneado)
     const vlvr = document.getElementById('vlvr');
+    let redirectRef = 'ventas.html';
     if (codeInput && modeAddId) {
         
-        vlvr.addEventListener('click', () => {
-            window.location.href = "escaner.html";
-        });
+        redirectRef= 'escaner.html'
         codeInput.value = modeAddId;
         setCodeReadOnly(true);
         setFormMode('Agregar producto');
     }
-    else{
-         vlvr.addEventListener('click', () => {
-            window.location.href = "ventas.html";
-        });
-    }
 
     // CASO 2: Modo Editar Producto (El parámetro modeEdit trae directamente el ID)
     if (modeEditId) {
+        redirectRef= 'inventario.html'
         currentProductId = modeEditId; // Asignamos el ID globalmente
         await loadProductForEdit(modeEditId);
     }
+     vlvr.addEventListener('click', () => {
+            window.location.href = redirectRef;
+        });
 }
 
 async function onFormSubmit(event) {

@@ -7,15 +7,15 @@ const API_BASE_URL = 'https://elrjtd.online/DDI/API/productos.php';
 let formInitialized = false;
 let currentProductId = null;
 
-// ===============================
+
 // DEVICEREADY
-// ===============================
+
 
 document.addEventListener('deviceready', function () {
 
-    // =====================================
+    
     // REFERENCIAS HTML
-    // =====================================
+    
 
     const barkoderView = document.getElementById('barkoderView');
     const startScanBtn = document.getElementById('startScanBtn');
@@ -35,9 +35,7 @@ document.addEventListener('deviceready', function () {
         startScanBtn.disabled = false;
     }
 
-    // =====================================
-    // TIPOS DE CÓDIGO
-    // =====================================
+    
 
     const setActiveBarcodeTypes = async () => {
 
@@ -64,10 +62,7 @@ document.addEventListener('deviceready', function () {
         }
     };
 
-    // =====================================
-    // AJUSTES CÁMARA
-    // =====================================
-
+    
     const setBarkoderSettings = async () => {
 
         try {
@@ -99,10 +94,7 @@ document.addEventListener('deviceready', function () {
         }
     };
 
-    // =====================================
-    // RESET UI
-    // =====================================
-
+    
     const resetUI = () => {
 
         if (startScanBtn) {
@@ -118,9 +110,7 @@ document.addEventListener('deviceready', function () {
         }
     };
 
-    // =====================================
-    // INICIAR ESCANEO
-    // =====================================
+    
 
     const startScanning = async () => {
 
@@ -149,17 +139,17 @@ document.addEventListener('deviceready', function () {
             const boundingRect =
                 barkoderView.getBoundingClientRect();
 
-            // =====================================
+            
             // LICENCIA
-            // =====================================
+         
 
             window.Barkoder.registerWithLicenseKey(
                 'PEmBIohr9EZXgCkySoetbwP4gvOfMcGzgxKPL2X6uqNsDDG12C05PmP2q67Lt2_Y5iOIrFsiVzsSGyKh3hYo_-RLArbX9066mPschvXbvHY9UPWiiPmtO-5q5JQy_gHuLKVUyinD5KzFexj_2uVscKgyISui-cMvixwuoKPY5oLOvzIyq8GZfNwENVA-S6C753Cp8An4X-vYPhp8dn7kQuk0dL4VFiIGpKC6pHCF1TL5mo0QDuB6WBsvMeYSoUTFHQ6xCCGqKCK8svx6nYTEK-JdkhS3ni1CyJLwt84Ox-4KE9qyM41V6fvR6jLSGLq9'
             );
 
-            // =====================================
+           
             // INICIALIZAR
-            // =====================================
+        
 
             await new Promise((resolve, reject) => {
 
@@ -181,9 +171,9 @@ document.addEventListener('deviceready', function () {
 
             await setActiveBarcodeTypes();
 
-            // =====================================
+           
             // ESCANEAR
-            // =====================================
+           
 
             window.Barkoder.startScanning(
 
@@ -220,9 +210,9 @@ document.addEventListener('deviceready', function () {
                         numeroDetectado
                     );
 
-                    // =====================================
+                   
                     // ESCRIBIR EN INPUT
-                    // =====================================
+                 
 
                     if (inputFormulario) {
 
@@ -230,9 +220,7 @@ document.addEventListener('deviceready', function () {
                             numeroDetectado;
                     }
 
-                    // =====================================
-                    // RESULTADOS VISUALES
-                    // =====================================
+                   
 
                     if (
                         resultado &&
@@ -257,9 +245,9 @@ document.addEventListener('deviceready', function () {
                         }
                     }
 
-                    // =====================================
+                    
                     // DETENER ESCANEO
-                    // =====================================
+                    
 
                     window.Barkoder.stopScanning(
 
@@ -308,9 +296,7 @@ document.addEventListener('deviceready', function () {
         }
     };
 
-    // =====================================
-    // DETENER ESCANEO
-    // =====================================
+    
 
     const stopScanning = () => {
 
@@ -333,9 +319,7 @@ document.addEventListener('deviceready', function () {
         );
     };
 
-    // =====================================
-    // EVENTOS BOTONES ESCANEO
-    // =====================================
+    
 
     if (startScanBtn) {
 
@@ -353,13 +337,8 @@ document.addEventListener('deviceready', function () {
         );
     }
 
-    // =====================================
-    // GUARDAR PRODUCTO
-    // =====================================
-
-   // =====================================
-// GUARDAR PRODUCTO
-// =====================================
+  
+  
 
 if (btnGuardar) {
 
@@ -371,10 +350,9 @@ if (btnGuardar) {
             const codigoAGuardar =
                 inputFormulario.value.trim();
 
-            // =========================
+           
             // VALIDACIÓN
-            // =========================
-
+            
             if (
                 !codigoAGuardar ||
                 codigoAGuardar === 'undefined'
@@ -389,9 +367,7 @@ if (btnGuardar) {
 
             try {
 
-                // =========================
-                // DEBUG
-                // =========================
+                
 
                 console.log(
                     "Enviando a:",
@@ -403,9 +379,7 @@ if (btnGuardar) {
                     codigoAGuardar
                 );
 
-                // =========================
-                // FETCH
-                // =========================
+                
 
                 const respuesta =
                     await fetch(
@@ -420,7 +394,7 @@ if (btnGuardar) {
                             },
 
                             body: JSON.stringify({
-                                codigo: codigoAGuardar
+                                id: codigoAGuardar
                             })
                         }
                     );
@@ -438,9 +412,7 @@ if (btnGuardar) {
                     textoRespuesta
                 );
 
-                // =========================
-                // PARSE JSON
-                // =========================
+               
 
                 let datos;
 
@@ -469,10 +441,9 @@ if (btnGuardar) {
                     datos
                 );
 
-                // =========================
+                
                 // PRODUCTO EXISTENTE
-                // =========================
-
+                
                 if (
                     datos.status === 'existe'
                 ) {
@@ -488,9 +459,9 @@ if (btnGuardar) {
                     return;
                 }
 
-                // =========================
+              
                 // PRODUCTO NUEVO
-                // =========================
+         
 
                 if (
                     datos.status === 'nuevo'
@@ -498,7 +469,7 @@ if (btnGuardar) {
 
                     alert(
                         "Producto no registrado.\n" +
-                        "Se abrirá el formulario."
+                        "Se abrirá el ñformulario."
                     );
 
                     window.location.href =
@@ -507,9 +478,9 @@ if (btnGuardar) {
                     return;
                 }
 
-                // =========================
+                
                 // ERROR SERVIDOR
-                // =========================
+               
 
                 if (datos.error) {
 
@@ -521,9 +492,7 @@ if (btnGuardar) {
                     return;
                 }
 
-                // =========================
                 // RESPUESTA RARA
-                // =========================
 
                 console.warn(
                     "Respuesta inesperada:",
@@ -536,9 +505,9 @@ if (btnGuardar) {
 
             } catch (error) {
 
-                // =========================
+               
                 // ERROR REAL
-                // =========================
+          
 
                 console.error(
                     "ERROR COMPLETO:",
