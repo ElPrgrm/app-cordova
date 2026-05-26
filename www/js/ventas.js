@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function formatearNumeroTicket(id) {
         if (!id) return 'Ticket #---';
-        return `Ticket #${String(id).padStart(9, '0')}`;
+        return `Ticket #${String(id).padStart(3, '0')}`;
     }
 
     function actualizarNumeroTicket() {
