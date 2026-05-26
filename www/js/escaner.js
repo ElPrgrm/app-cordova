@@ -171,7 +171,7 @@ document.addEventListener('deviceready', function() {
             }
 
             // IMPORTANTE: Cambia '192.168.X.X' por la dirección IP real de tu computadora en tu red Wi-Fi
-            const urlServidor = 'http://192.168.1.14/PuntoVenta/www/api/procesar_codigo.php';
+            const urlServidor = 'http://192.168.1.14/PuntoVenta/www/api/productos.php';
 
             // Preparamos los datos para enviarlos por POST
             const formData = new URLSearchParams();
