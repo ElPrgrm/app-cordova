@@ -6,7 +6,6 @@ window.addEventListener('DOMContentLoaded', init);
 document.addEventListener('deviceready', init);
 
 function init() {
-    
     initForm();
     document.addEventListener('backbutton', onBackButton, false);
 }
@@ -31,38 +30,40 @@ async function initForm() {
     form.addEventListener('submit', onFormSubmit);
 
     const codeInput = document.getElementById('codeqr');
-    const modeAdd = getQueryParam('modeAdd');
-    console.log(modeAdd);
-    const modeEdit = getQueryParam('modeEdit');
-    console.log(modeEdit);
-    const id = getQueryParam('id');
 
-    if (!modeAdd && !modeEdit && !id) {}
+    // Capturamos los parámetros que traen el ID consigo
+    const modeAddId = getQueryParam('modeAdd');   // Trae el código escaneado para un producto nuevo
+    const modeEditId = getQueryParam('modeEdit'); // Trae el ID del producto existente a editar
 
-    if (codeInput && modeAdd) {
-        codeInput.value = modeAdd;
+    // CASO 1: Modo Añadir Producto (Viene con el ID/Código escaneado)
+    if (codeInput && modeAddId) {
+        const vlvr = document.getElementById('vlvr');
+        vlvr.addEventListener('click', () => {
+            window.location.href = "escaner.html";
+        });
+        codeInput.value = modeAddId;
         setCodeReadOnly(true);
         setFormMode('Agregar producto');
     }
 
-    if (modeEdit) {
-        await loadProductForEdit(modeEdit, true);
-    } else if (id) {
-        currentProductId = id;
-        await loadProductForEdit(id, false);
+    // CASO 2: Modo Editar Producto (El parámetro modeEdit trae directamente el ID)
+    if (modeEditId) {
+        currentProductId = modeEditId; // Asignamos el ID globalmente
+        await loadProductForEdit(modeEditId);
     }
 }
 
 async function onFormSubmit(event) {
     event.preventDefault();
     const submitButton = document.getElementById('submitButton');
-    if (submitButton && submitButton.disabled) return; // evitar envíos dobles
+    if (submitButton && submitButton.disabled) return; // Evitar envíos dobles
 
     const producto = getFormData();
     if (!producto) {
         showMessage('Por favor completa todos los campos correctamente.', true);
         return;
     }
+
     // Mostrar estado y desactivar botón
     const originalText = submitButton ? submitButton.textContent : 'Guardar';
     if (submitButton) {
@@ -78,7 +79,7 @@ async function onFormSubmit(event) {
         if (result && result.success) {
             const message = currentProductId
                 ? 'Producto actualizado correctamente.'
-                : `Producto guardado correctamente con ID: ${result.id}`;
+                : `Producto guardado correctamente con ID: ${result.id || producto.id}`;
 
             showMessage(message);
             if (!currentProductId) {
@@ -120,8 +121,6 @@ async function updateProducto(id, productoData) {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json'
-
-
         },
         body: JSON.stringify(productoData)
     });
@@ -134,9 +133,10 @@ async function updateProducto(id, productoData) {
     return response.json();
 }
 
-async function loadProductForEdit(identifier, isCode) {
-    const queryParam = 'id';
-    const response = await fetch(`${API_BASE_URL}?${queryParam}=${encodeURIComponent(identifier)}`);
+// Simplificado: Eliminado el parámetro redundante isCode ya que 'identifier' es el id directo extraído de modeEdit
+async function loadProductForEdit(identifier) {
+    // La API siempre consulta mediante la clave URL '?id='
+    const response = await fetch(`${API_BASE_URL}?id=${encodeURIComponent(identifier)}`);
 
     if (!response.ok) {
         const errorBody = await tryParseJson(response);
@@ -150,6 +150,7 @@ async function loadProductForEdit(identifier, isCode) {
         return;
     }
 
+    // Aseguramos que el id de control sea el devuelto por la base de datos
     currentProductId = result.data.id;
     fillForm(result.data);
     setFormMode('Actualizar producto');
@@ -222,11 +223,6 @@ function getFormData() {
         cantidad,
     };
 }
-
-
-
-
-
 
 function showMessage(text, isError = false) {
     const messageElement = document.getElementById('formMessage');
