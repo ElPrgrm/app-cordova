@@ -184,7 +184,7 @@ if (btnGuardar) {
         // Crear datos para enviar
         const formData = new URLSearchParams();
 
-        formData.append('codigo', codigoAGuardar);
+        formData.append('id', codigoAGuardar);
 
         // Enviar petición
         fetch(urlServidor, {
@@ -237,7 +237,7 @@ if (btnGuardar) {
                 alert("Producto nuevo. Redirigiendo al formulario...");
 
                 window.location.href =
-                    `form.html?codigo=${codigoAGuardar}`;
+                    `form.html?id=${codigoAGuardar}`;
             }
 
             // Error desde PHP

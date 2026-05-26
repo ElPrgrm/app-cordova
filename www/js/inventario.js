@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Endpoint relativo a la API
-    const API_URL = 'https://dandi1333.great-site.net/DDI/API/API/productos.php';
+    const API_URL = 'https://elrjtd.online/DDI/API/productos.php';
 
     function formatearPrecio(valor) {
         return `$${Number(valor).toFixed(2)}`;

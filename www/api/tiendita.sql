@@ -28,8 +28,7 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `productos` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `codigo` varchar(64) NOT NULL,
+  `id` int(10) UNSIGNED NOT NULL ,
   `nombre` varchar(255) NOT NULL,
   `descripcion` text NOT NULL,
   `precio` decimal(10,2) NOT NULL DEFAULT 0.00,
@@ -44,8 +43,7 @@ CREATE TABLE `productos` (
 -- Indices de la tabla `productos`
 --
 ALTER TABLE `productos`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `codigo` (`codigo`);
+  ADD PRIMARY KEY (`id`)
 
 --
 -- AUTO_INCREMENT de las tablas volcadas
