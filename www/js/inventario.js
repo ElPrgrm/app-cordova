@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Endpoint relativo a la API
-    const API_URL = 'api/productos.php';
+    const API_URL = 'http://localhost/DDI/API/productos.php';
 
     function formatearPrecio(valor) {
         return `$${Number(valor).toFixed(2)}`;
