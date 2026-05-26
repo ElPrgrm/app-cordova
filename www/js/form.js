@@ -36,14 +36,20 @@ async function initForm() {
     const modeEditId = getQueryParam('modeEdit'); // Trae el ID del producto existente a editar
 
     // CASO 1: Modo Añadir Producto (Viene con el ID/Código escaneado)
+    const vlvr = document.getElementById('vlvr');
     if (codeInput && modeAddId) {
-        const vlvr = document.getElementById('vlvr');
+        
         vlvr.addEventListener('click', () => {
             window.location.href = "escaner.html";
         });
         codeInput.value = modeAddId;
         setCodeReadOnly(true);
         setFormMode('Agregar producto');
+    }
+    else{
+         vlvr.addEventListener('click', () => {
+            window.location.href = "ventas.html";
+        });
     }
 
     // CASO 2: Modo Editar Producto (El parámetro modeEdit trae directamente el ID)
