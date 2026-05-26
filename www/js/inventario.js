@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const tr = document.createElement('tr');
             tr.dataset.id = producto.id;
             tr.innerHTML = `
-                <td>${producto.codigo || '-'}</td>
+                <td>${producto.id || '-'}</td>
                 <td>${producto.nombre || '-'}</td>
                 <td>${producto.descripcion || '-'}</td>
                 <td>${producto.cantidad || 0}</td>
