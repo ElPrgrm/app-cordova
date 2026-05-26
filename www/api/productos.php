@@ -55,6 +55,38 @@ try {
             echo json_encode(['success' => true, 'data' => $all], JSON_UNESCAPED_UNICODE);
             break;
         case 'POST':
+            // Si se recibe solo el código, procesamos el escaneo y actualizamos cantidad.
+            if (isset($input['codigo'])
+                && !isset($input['nombre'])
+                && !isset($input['descripcion'])
+                && !isset($input['precio'])
+                && !isset($input['cantidad'])) {
+
+                $codigo = $input['codigo'];
+                $select = $db->select('productos');
+                $select->where('codigo', '=', $codigo);
+                $rows = $select->execute();
+                $producto = $rows[0] ?? null;
+
+                if ($producto) {
+                    $nuevaCantidad = $producto['cantidad'] + 1;
+                    $update = $db->update('productos');
+                    $update->set('cantidad', $nuevaCantidad);
+                    $update->where('codigo', '=', $codigo);
+                    $update->execute();
+
+                    echo json_encode([
+                        'status' => 'existe',
+                        'mensaje' => 'Cantidad actualizada',
+                        'nueva_cantidad' => $nuevaCantidad
+                    ], JSON_UNESCAPED_UNICODE);
+                } else {
+                    echo json_encode(['status' => 'nuevo'], JSON_UNESCAPED_UNICODE);
+                }
+
+                break;
+            }
+
             $required = ['codigo', 'nombre', 'descripcion', 'precio', 'cantidad'];
             foreach ($required as $field) {
                 if (!isset($input[$field]) || $input[$field] === '') {
