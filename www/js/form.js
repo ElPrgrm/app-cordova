@@ -1,9 +1,20 @@
-const API_BASE_URL = 'http://localhost/DDI/API/productos.php';
+const API_BASE_URL = 'https://elrjtd.online/DDI/API/productos.php';
 let formInitialized = false;
 let currentProductId = null;
 
 window.addEventListener('DOMContentLoaded', initForm);
-window.addEventListener('deviceready', initForm);
+document.addEventListener('deviceready', init);
+
+async function init() {
+    await initForm;
+    document.addEventListener('backbutton', onBackButton, false);
+}
+
+function onBackButton(event) {
+    // Evita el comportamiento por defecto (que suele ser cerrar la app de golpe)
+    event.preventDefault();
+    window.href ='ventas.html'
+}
 
 async function initForm() {
     if (formInitialized) {
@@ -23,13 +34,16 @@ async function initForm() {
     const modeEdit = getQueryParam('modeEdit');
     const id = getQueryParam('id');
 
+    if(!modeAdd || !modeEdit)
+
+
     if (codeInput && modeAdd) {
         codeInput.value = modeAdd;
         setCodeReadOnly(true);
         setFormMode('Agregar producto');
     }
 
-    if (modeEdit) {
+     if (modeEdit) {
         await loadProductForEdit(modeEdit, true);
     } else if (id) {
         currentProductId = id;
@@ -119,7 +133,7 @@ async function updateProducto(id, productoData) {
 }
 
 async function loadProductForEdit(identifier, isCode) {
-    const queryParam = isCode ? 'codigo' : 'id';
+    const queryParam = 'id';
     const response = await fetch(`${API_BASE_URL}?${queryParam}=${encodeURIComponent(identifier)}`);
 
     if (!response.ok) {
@@ -199,7 +213,7 @@ function getFormData() {
     }
 
     return {
-        codigo: codeqr,
+        id: codeqr,
         nombre,
         descripcion,
         precio,

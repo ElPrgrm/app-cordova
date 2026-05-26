@@ -160,7 +160,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const term = e.target.value.toLowerCase();
             const filtrados = productosOriginales.filter(p =>
                 (p.nombre && p.nombre.toLowerCase().includes(term)) ||
-                (p.codigo && p.codigo.toLowerCase().includes(term))
+                (p.id && p.id.toLowerCase().includes(term))
             );
             renderizarProductos(filtrados);
         });
