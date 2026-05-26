@@ -2,18 +2,19 @@ const API_BASE_URL = 'https://elrjtd.online/DDI/API/productos.php';
 let formInitialized = false;
 let currentProductId = null;
 
-window.addEventListener('DOMContentLoaded', initForm);
+window.addEventListener('DOMContentLoaded', init);
 document.addEventListener('deviceready', init);
 
-async function init() {
-    await initForm;
+function init() {
+    
+    initForm();
     document.addEventListener('backbutton', onBackButton, false);
 }
 
 function onBackButton(event) {
     // Evita el comportamiento por defecto (que suele ser cerrar la app de golpe)
     event.preventDefault();
-    window.href ='ventas.html'
+    window.location.href = 'ventas.html';
 }
 
 async function initForm() {
@@ -31,14 +32,12 @@ async function initForm() {
 
     const codeInput = document.getElementById('codeqr');
     const modeAdd = getQueryParam('modeAdd');
+    console.log(modeAdd);
     const modeEdit = getQueryParam('modeEdit');
+    console.log(modeEdit);
     const id = getQueryParam('id');
 
-    if(!modeAdd || !modeEdit){
-        window.href = "ventas.html";
-        return;
-    }
-
+    if (!modeAdd && !modeEdit && !id) {}
 
     if (codeInput && modeAdd) {
         codeInput.value = modeAdd;
@@ -46,7 +45,7 @@ async function initForm() {
         setFormMode('Agregar producto');
     }
 
-     if (modeEdit) {
+    if (modeEdit) {
         await loadProductForEdit(modeEdit, true);
     } else if (id) {
         currentProductId = id;

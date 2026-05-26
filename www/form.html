@@ -3,52 +3,86 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="css/index.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Sistema de Ventas - Registro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="css/form.css">
-    <title>Formulario</title>
 </head>
 
 <body>
-    <div class="container">
+
+    <nav class="pos-nav">
+        <div class="nav-container">
+            <div class="logo-area">
+                <div class="logo-icon">
+                    <i class="fas fa-cash-register"></i>
+                </div>
+                <div class="logo-text">
+                    Sistema de Ventas
+                </div>
+            </div>
+            <div class="nav-buttons">
+                <a href="form.html" class="nav-btn active">
+                    <i class="fas fa-file-alt"></i> Formulario
+                </a>
+                <a href="Inventario.html" class="nav-btn">
+                    <i class="fas fa-boxes"></i> Inventario
+                </a>
+                <a href="escaner.html" class="nav-btn">
+                    <i class="fas fa-qrcode"></i> Escáner
+                </a>
+                <a href="ventas.html" class="nav-btn">
+                    <i class="fas fa-shopping-cart"></i> Venta
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="app-shell">
         <div class="card">
             <div class="card-header">
-                <h1>Formulario</h1>
-                <p>Registra tu producto de forma rápida y clara.</p>
+                <div class="brand-icon-wrapper">
+                    <i class="fas fa-boxes"></i>
+                </div>
+                <h1>Registrar Producto</h1>
+                <p>Introduce los datos para actualizar el inventario global.</p>
             </div>
+            
             <div id="formMessage" class="form-message" aria-live="polite"></div>
+            
             <form id="product-form" action="" method="post">
-
                 <div class="mb-3">
-                    <label for="codeqr" class="form-label">Codigo</label>
-                    <input type="number" class="form-control" name="codeqr" id="codeqr" aria-describedby="helpId"
-                        placeholder="xxxxxxxxxx" />
+                    <label for="codeqr" class="form-label"><i class="fas fa-qrcode me-1"></i> Código</label>
+                    <input type="number" class="form-control" name="codeqr" id="codeqr" placeholder="xxxxxxxxxx" />
                 </div>
                 <div class="mb-3">
-                    <label for="name" class="form-label">Nombre</label>
-                    <input type="text" class="form-control" name="name" id="name" placeholder="Nombre" />
+                    <label for="name" class="form-label"><i class="fas fa-tag me-1"></i> Nombre</label>
+                    <input type="text" class="form-control" name="name" id="name" placeholder="Ej. Refresco de Cola" />
                 </div>
                 <div class="mb-3">
-                    <label for="description" class="form-label">descripción</label>
-                    <input type="text" class="form-control" name="description" id="description"
-                        placeholder="descripción" />
+                    <label for="description" class="form-label"><i class="fas fa-align-left me-1"></i> Descripción</label>
+                    <input type="text" class="form-control" name="description" id="description" placeholder="Detalles del producto" />
                 </div>
                 <div class="mb-3">
-                    <label for="price" class="form-label">precio</label>
-                    <input type="number" class="form-control" name="price" id="price" placeholder="xx.xx" />
+                    <label for="price" class="form-label"><i class="fas fa-dollar-sign me-1"></i> Precio</label>
+                    <input type="number" class="form-control" name="price" id="price" placeholder="0.00" step="0.01" />
                 </div>
                 <div class="mb-3">
-                    <label for="quantity" class="form-label">cantidad</label>
-                    <input type="number" class="form-control" name="quantity" id="quantity" placeholder="xx" />
+                    <label for="quantity" class="form-label"><i class="fas fa-layer-group me-1"></i> Cantidad</label>
+                    <input type="number" class="form-control" name="quantity" id="quantity" placeholder="0" />
                 </div>
                 <div class="form-actions">
-                    <a href="ventas.html" class="btn-secundario">Volver al menú</a>
-                    <button type="submit" id="submitButton">Guardar</button>
+                    <a href="ventas.html" class="btn-secundario">
+                        <i class="fas fa-arrow-left"></i> Volver
+                    </a>
+                    <button type="submit" id="submitButton" class="btn-primary-action">
+                        <i class="fas fa-save"></i> Guardar Producto
+                    </button>
                 </div>
             </form>
         </div>
-    </div>
-    <br>
+    </main>
+
     <script src="js/form.js"></script>
 </body>
 

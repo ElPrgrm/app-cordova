@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div>
                         <h6 class="fw-bold mb-1">${producto.nombre || '-'}</h6>
                         <p class="small text-muted mb-2">${producto.descripcion || ''}</p>
-                        <small class="text-muted">Código: ${producto.codigo || 'N/A'}</small>
+                        <small class="text-muted">Código: ${producto.id || 'N/A'}</small>
                     </div>
                     <div class="d-flex justify-content-between align-items-center mt-auto">
                         <span class="fs-5 fw-bold text-primary">${formatearPrecio(producto.precio || 0)}</span>
