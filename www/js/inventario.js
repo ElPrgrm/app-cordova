@@ -45,6 +45,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 <td>${formatearPrecio(producto.precio || 0)}</td>
                 <td>
                     <a href="form.html?id=${producto.id}&modeEdit=1" class="action-btn edit-btn">Editar</a>
+                    <button data-id="${producto.id}" class="action-btn cancel-btn ms-2 delete-btn">Eliminar</button>
                 </td>
             `;
             fragment.appendChild(tr);
@@ -52,6 +53,51 @@ document.addEventListener('DOMContentLoaded', function () {
 
         tableBody.appendChild(fragment);
         actualizarFecha();
+    }
+
+    // Manejar clic en botón eliminar (delegación)
+    tableBody.addEventListener('click', function (e) {
+        const btn = e.target.closest('.delete-btn');
+        if (!btn) return;
+
+        const id = btn.getAttribute('data-id');
+        if (!id) return;
+
+        if (!confirm('¿Eliminar este producto? Esta acción no se puede deshacer.')) return;
+
+        // Buscar la fila correspondiente
+        const tr = btn.closest('tr');
+        eliminarProducto(id, tr);
+    });
+
+    function eliminarProducto(id, tr) {
+        const url = `${API_URL}?id=${encodeURIComponent(id)}`;
+
+        fetch(url, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return response.json();
+            })
+            .then(json => {
+                if (json.success) {
+                    // Remover la fila y actualizar contador
+                    if (tr && tr.parentNode) tr.parentNode.removeChild(tr);
+                    const nuevoTotal = Math.max(0, Number(totalCount.textContent || 0) - 1);
+                    totalCount.textContent = nuevoTotal;
+                    actualizarFecha();
+                } else {
+                    throw new Error(json.error || 'No se pudo eliminar el producto');
+                }
+            })
+            .catch(err => {
+                console.error('Error eliminando producto:', err);
+                alert('No se pudo eliminar el producto: ' + (err.message || err));
+            });
     }
 
     function cargarProductos() {
