@@ -1,3 +1,8 @@
+const API_BASE_URL = 'http://127.0.0.1/DDI/API/productos.php';
+let formInitialized = false;
+let currentProductId = null;
+
+
 document.addEventListener('deviceready', function() {
     // 1. Referencias a HTML
     const barkoderView = document.getElementById('barkoderView');
@@ -165,7 +170,8 @@ document.addEventListener('deviceready', function() {
                 return;
             }
 
-            const urlServidor = 'api/productos.php';
+            // IMPORTANTE: Cambia '192.168.X.X' por la dirección IP real de tu computadora en tu red Wi-Fi
+            const urlServidor = 'http://192.168.1.14/PuntoVenta/www/api/procesar_codigo.php';
 
             // Preparamos los datos para enviarlos por POST
             const formData = new URLSearchParams();
