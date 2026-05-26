@@ -2,20 +2,21 @@ document.addEventListener('DOMContentLoaded', function () {
     const tableBody = document.getElementById('inventory-body');
     const totalCount = document.getElementById('total-count');
     const updatedAt = document.getElementById('updated-at');
-    const storageKey = 'tiendaProductos';
     let productosActuales = [];
 
     if (!tableBody || !totalCount) {
         return;
     }
 
-    function guardarProductos(productos) {
-        localStorage.setItem(storageKey, JSON.stringify(productos));
-    }
-
-    function obtenerProductosAlmacenados() {
-        const datos = localStorage.getItem(storageKey);
-        return datos ? JSON.parse(datos) : null;
+    function getApiUrl() {
+        const currentPath = window.location.pathname;
+        const wwwIndex = currentPath.indexOf('/www/');
+        if (wwwIndex !== -1) {
+            const basePath = currentPath.substring(0, wwwIndex + 5);
+            return basePath + '/api/productos.php';
+        }
+        const basePath = currentPath.substring(0, currentPath.lastIndexOf('/'));
+        return basePath + '/api/productos.php';
     }
 
     function formatearPrecio(valor) {
@@ -37,7 +38,7 @@ document.addEventListener('DOMContentLoaded', function () {
         tableBody.innerHTML = '';
 
         if (productos.length === 0) {
-            tableBody.innerHTML = '<tr><td colspan="4">No hay productos disponibles.</td></tr>';
+            tableBody.innerHTML = '<tr><td colspan="6">No hay productos disponibles.</td></tr>';
             return;
         }
 
@@ -46,11 +47,13 @@ document.addEventListener('DOMContentLoaded', function () {
             const tr = document.createElement('tr');
             tr.dataset.id = producto.id;
             tr.innerHTML = `
+                <td>${producto.codigo}</td>
                 <td>${producto.nombre}</td>
+                <td>${producto.descripcion}</td>
                 <td>${producto.cantidad}</td>
                 <td>${formatearPrecio(producto.precio)}</td>
                 <td>
-                    <button class="action-btn edit-btn" data-id="${producto.id}">Editar</button>
+                    <a href="form.html?id=${producto.id}" class="action-btn edit-btn">Editar</a>
                 </td>
             `;
             fragment.appendChild(tr);
@@ -108,53 +111,32 @@ document.addEventListener('DOMContentLoaded', function () {
         renderizarTabla(productosActuales);
     }
 
-    function cancelarEdicion() {
-        renderizarTabla(productosActuales);
-    }
-
     tableBody.addEventListener('click', function (event) {
-        const target = event.target;
-        const id = Number(target.dataset.id);
-
-        if (target.matches('.edit-btn')) {
-            iniciarEdicion(id);
-            return;
-        }
-
-        if (target.matches('.save-btn')) {
-            guardarEdicion(id);
-            return;
-        }
-
-        if (target.matches('.cancel-btn')) {
-            cancelarEdicion();
-            return;
-        }
+        // Los enlaces de editar ahora redirigen al formulario automáticamente
     });
 
     function cargarProductos() {
-        const almacenados = obtenerProductosAlmacenados();
-        if (almacenados && Array.isArray(almacenados) && almacenados.length > 0) {
-            productosActuales = almacenados;
-            renderizarTabla(productosActuales);
-            return;
-        }
-
-        fetch('productos.json')
+        tableBody.innerHTML = '<tr><td colspan="6">Cargando productos...</td></tr>';
+        const apiUrl = getApiUrl();
+        
+        fetch(apiUrl)
             .then(response => {
                 if (!response.ok) {
-                    throw new Error('Error al cargar productos.json');
+                    throw new Error('Error al cargar productos del servidor');
                 }
                 return response.json();
             })
             .then(data => {
-                productosActuales = data.productos || [];
-                guardarProductos(productosActuales);
-                renderizarTabla(productosActuales);
+                if (data.success && Array.isArray(data.data)) {
+                    productosActuales = data.data;
+                    renderizarTabla(productosActuales);
+                } else {
+                    throw new Error('Formato de respuesta inválido');
+                }
             })
             .catch(error => {
                 console.error(error);
-                tableBody.innerHTML = '<tr><td colspan="4">Error al cargar los productos.</td></tr>';
+                tableBody.innerHTML = '<tr><td colspan="6">Error al cargar los productos.</td></tr>';
             });
     }
 
