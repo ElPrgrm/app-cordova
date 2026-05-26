@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://127.0.0.1/PuntoVenta/www/api/productos.php';
+const API_BASE_URL = 'https://elrjtd.online/DDI/API/productos.php';
 let formInitialized = false;
 let currentProductId = null;
 
@@ -179,7 +179,7 @@ if (btnGuardar) {
         }
 
         // URL de tu API
-        const urlServidor = 'http://192.168.1.14/PuntoVenta/www/api/productos.php';
+        const urlServidor = 'https://elrjtd.online/DDI/API/productos.php';
 
         // Crear datos para enviar
         const formData = new URLSearchParams();
