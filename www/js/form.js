@@ -19,16 +19,21 @@ async function initForm() {
     form.addEventListener('submit', onFormSubmit);
 
     const codeInput = document.getElementById('codeqr');
-    const codeFromUrl = getQueryParam('codigo');
-    if (codeInput && codeFromUrl) {
-        codeInput.value = codeFromUrl;
+    const modeAdd = getQueryParam('modeAdd');
+    const modeEdit = getQueryParam('modeEdit');
+    const id = getQueryParam('id');
+
+    if (codeInput && modeAdd) {
+        codeInput.value = modeAdd;
         setCodeReadOnly(true);
+        setFormMode('Agregar producto');
     }
 
-    const id = getQueryParam('modeEdit');
-    if (id) {
+    if (modeEdit) {
+        await loadProductForEdit(modeEdit, true);
+    } else if (id) {
         currentProductId = id;
-        await loadProductForEdit(id);
+        await loadProductForEdit(id, false);
     }
 }
 
@@ -113,8 +118,9 @@ async function updateProducto(id, productoData) {
     return response.json();
 }
 
-async function loadProductForEdit(id) {
-    const response = await fetch(`${API_BASE_URL}?id=${encodeURIComponent(id)}`);
+async function loadProductForEdit(identifier, isCode) {
+    const queryParam = isCode ? 'codigo' : 'id';
+    const response = await fetch(`${API_BASE_URL}?${queryParam}=${encodeURIComponent(identifier)}`);
 
     if (!response.ok) {
         const errorBody = await tryParseJson(response);
@@ -128,6 +134,7 @@ async function loadProductForEdit(id) {
         return;
     }
 
+    currentProductId = result.data.id;
     fillForm(result.data);
     setFormMode('Actualizar producto');
 }
