@@ -34,7 +34,10 @@ async function initForm() {
     const modeEdit = getQueryParam('modeEdit');
     const id = getQueryParam('id');
 
-    if(!modeAdd || !modeEdit)
+    if(!modeAdd || !modeEdit){
+        window.href = "ventas.html";
+        return;
+    }
 
 
     if (codeInput && modeAdd) {
