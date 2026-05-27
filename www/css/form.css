@@ -1,6 +1,4 @@
-/* ==========================================================================
-   ESTILOS COPIADOS DEL ECOSISTEMA DE VENTAS (Mantenimiento de Identidad)
-   ========================================================================== */
+
 * {
     margin: 0;
     padding: 0;
@@ -103,9 +101,6 @@ body {
     justify-content: center;
 }
 
-/* ==========================================================================
-   ADAPTACIÓN DE LA TARJETA DEL FORMULARIO
-   ========================================================================== */
 .card {
     width: 100%;
     max-width: 540px;
@@ -129,7 +124,6 @@ body {
     border: none;
 }
 
-/* Icono estético superior para romper la monotonía */
 .brand-icon-wrapper {
     width: 56px;
     height: 56px;
@@ -171,10 +165,9 @@ form {
     color: #374151;
     font-size: 0.85rem;
     font-weight: 600;
-    text-transform: none; /* Quitamos el capitalize forzado previo */
+    text-transform: none; 
 }
 
-/* Campos de texto estilizados como el buscador de ventas */
 .form-control {
     width: 100%;
     min-height: 46px;
@@ -198,9 +191,6 @@ form {
     font-size: 0.9rem;
 }
 
-/* ==========================================================================
-   BOTONES DE ACCIÓN (Sincronizados con la paleta de Ventas)
-   ========================================================================== */
 .form-actions {
     margin-top: 1.75rem;
     display: flex;
@@ -209,7 +199,6 @@ form {
     gap: 1rem;
 }
 
-/* Botón Guardar - Adopta el verde esmeralda dinámico del pago exitoso */
 .btn-primary-action {
     flex: 2;
     background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
@@ -233,7 +222,6 @@ form {
     color: white;
 }
 
-/* Botón Volver - Adaptado del estilo .btn-secundario limpio del panel inferior */
 .form-actions .btn-secundario {
     flex: 1;
     display: inline-flex;
@@ -276,9 +264,6 @@ form {
     display: block;
 }
 
-/* ==========================================================================
-   RESPONSIVE DESIGN (Consistente con los breakpoints de Ventas)
-   ========================================================================== */
 @media screen and (max-width: 576px) {
     .app-shell {
         padding: 1rem 0.5rem;
@@ -297,7 +282,7 @@ form {
     }
 
     .form-actions {
-        flex-direction: column-reverse; /* El botón de guardar queda arriba en móviles para accesibilidad pulgar */
+        flex-direction: column-reverse; 
         gap: 0.75rem;
     }
 
