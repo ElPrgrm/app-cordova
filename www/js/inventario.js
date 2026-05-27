@@ -46,7 +46,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 <td>
                     <a href="form.html?id=${producto.id}&modeEdit=${producto.id}" class="action-btn edit-btn">Editar</a>
                     <br>
-                    <button data-id="${producto.id}" class="action-btn cancel-btn ms-2 delete-btn">Eliminar</button>
                 </td>
             `;
             fragment.appendChild(tr);
