@@ -2,6 +2,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const tableBody = document.getElementById('inventory-body');
     const totalCount = document.getElementById('total-count');
     const updatedAt = document.getElementById('updated-at');
+    const inventorySearchInput = document.getElementById('inventorySearchInput');
+
+    let productosOriginales = [];
 
     if (!tableBody || !totalCount) {
         return;
@@ -112,8 +115,8 @@ document.addEventListener('DOMContentLoaded', function () {
             })
             .then(data => {
                 if (data.success && Array.isArray(data.data)) {
-                       console.error('er');
-                    renderizarTabla(data.data);
+                    productosOriginales = data.data;
+                    renderizarTabla(productosOriginales);
                 } else {
                     throw new Error('Formato de respuesta inválido desde la API');
                 }
@@ -122,6 +125,18 @@ document.addEventListener('DOMContentLoaded', function () {
                 console.error('Error cargando productos:', error);
                 tableBody.innerHTML = `<tr><td colspan="6">Error: ${error.message}</td></tr>`;
             });
+    }
+
+    if (inventorySearchInput) {
+        inventorySearchInput.addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            const filtrados = productosOriginales.filter(p =>
+                (p.nombre && p.nombre.toLowerCase().includes(term)) ||
+                (p.descripcion && p.descripcion.toLowerCase().includes(term)) ||
+                (p.id && String(p.id).includes(term))
+            );
+            renderizarTabla(filtrados);
+        });
     }
 
     // Cargar productos al iniciar
