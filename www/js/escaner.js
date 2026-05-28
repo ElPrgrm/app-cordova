@@ -1,6 +1,3 @@
-// ===============================
-// CONFIG
-// ===============================
 
 const API_BASE_URL = 'https://elrjtd.online/DDI/API/productos.php';
 
@@ -177,7 +174,7 @@ document.addEventListener('deviceready', function () {
 
             window.Barkoder.startScanning(
 
-                // SUCCESS
+                
                 (resultado) => {
 
                     console.log(
