@@ -8,6 +8,9 @@ document.addEventListener('deviceready', init);
 function init() {
     initForm();
     document.addEventListener('backbutton', onBackButton, false);
+    document.getElementById("buttons_alert").addEventListener("click", () => {
+        hideMessage();
+    })
 }
 
 function onBackButton(event) {
@@ -39,24 +42,58 @@ async function initForm() {
     const vlvr = document.getElementById('vlvr');
     let redirectRef = 'ventas.html';
     if (codeInput && modeAddId) {
-        
-        redirectRef= 'escaner.html'
+        codeRestore = localStorage.getItem('codeqr');
         codeInput.value = modeAddId;
+        if (codeRestore && codeRestore == modeAddId) {
+            restoreValues();
+        }
+        redirectRef = 'escaner.html?modeEdit=' + modeAddId;
         setCodeReadOnly(true);
         setFormMode('Agregar producto');
     }
 
     // CASO 2: Modo Editar Producto (El parámetro modeEdit trae directamente el ID)
     if (modeEditId) {
-        redirectRef= 'inventario.html'
+        codeRestore = localStorage.getItem('codeqr');
+        codeInput.value = modeEditId;
+        console.log("verifying codeqr");
+        if (codeRestore && codeRestore == modeEditId) {
+            showMessage('desea recuperar los ultimos cambios?', false, () => {
+                restoreValues();
+                hideMessage();
+            }, "aceptar")
+            //restoreValues();
+        }
+        redirectRef = 'inventario.html'
         currentProductId = modeEditId; // Asignamos el ID globalmente
         await loadProductForEdit(modeEditId);
     }
-     vlvr.addEventListener('click', () => {
-            window.location.href = redirectRef;
-        });
-}
+    vlvr.addEventListener('click', () => {
 
+        backupValues();
+
+        window.location.href = redirectRef;
+
+    });
+}
+function backupValues() {
+    localStorage.setItem('codeqr', document.getElementById('codeqr').value);
+    localStorage.setItem('name', document.getElementById('name').value);
+    localStorage.setItem('description', document.getElementById('description').value);
+    localStorage.setItem('price', document.getElementById('price').value);
+    localStorage.setItem('quantity', document.getElementById('quantity').value);
+
+
+}
+function restoreValues() {
+    document.getElementById('codeqr').value = localStorage.getItem('codeqr') ?? '';
+    setCodeReadOnly(true);
+    document.getElementById('name').value = localStorage.getItem('name') ?? '';
+    document.getElementById('description').value = localStorage.getItem('description') ?? '';
+    document.getElementById('price').value = localStorage.getItem('price') ?? '';
+    document.getElementById('quantity').value = localStorage.getItem('quantity') ?? '';
+
+}
 async function onFormSubmit(event) {
     event.preventDefault();
     const submitButton = document.getElementById('submitButton');
@@ -228,17 +265,47 @@ function getFormData() {
     };
 }
 
-function showMessage(text, isError = false) {
-    const messageElement = document.getElementById('formMessage');
-    if (!messageElement) {
+function showMessage(text, isError = false, action = null, textAction) {
+    console.log("called show message");
+
+    const cntnrAlert = document.getElementById('formMessage');
+    if (!cntnrAlert) {
         alert(text);
         return;
     }
-    messageElement.textContent = text;
-    messageElement.classList.add('visible');
-    messageElement.style.backgroundColor = isError ? '#fee2e2' : '#eff6ff';
-    messageElement.style.color = isError ? '#b91c1c' : '#1d4ed8';
+    const mssg = document.getElementById('messageAlert');
+    mssg.textContent = text;
+
+    cntnrAlert.classList.remove('d-none');
+    cntnrAlert.classList.add('d-block');
+    btns = document.getElementById('buttons_alert');
+    btn = document.getElementById('action_alert');
+    if (action && typeof action === 'function') {
+
+        btn.textContent = textAction;
+        btns.classList.remove('d-none');
+        btns.classList.add('d-block');
+        btn.addEventListener('click', () => {
+
+            action();
+        });
+    }
+    cntnrAlert.style.backgroundColor = isError ? '#fee2e2' : '#eff6ff';
+    cntnrAlert.style.color = isError ? '#b91c1c' : '#1d4ed8';
     setTimeout(() => {
-        messageElement.classList.remove('visible');
+        cntnrAlert.classList.remove('d-bock');
+        cntnrAlert.classList.add('d-none');
+        btns.classList.remove('d-bock');
+        btns.classList.add('d-none');
+        // cntnrAlert.classList.remove('visible');
     }, 4800);
+}
+
+function hideMessage() {
+    const cntnrAlert = document.getElementById('formMessage');
+    const btns = document.getElementById('buttons_alert');
+    cntnrAlert.classList.remove('d-bock');
+    cntnrAlert.classList.add('d-none');
+    btns.classList.remove('d-bock');
+    btns.classList.add('d-none');
 }
