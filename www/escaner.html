@@ -4,11 +4,11 @@
 <head>
     <meta charset="utf-8">
 
-<meta http-equiv="Content-Security-Policy"
-content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval';
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval';
 connect-src 'self' https://elrjtd.online;
 style-src 'self' 'unsafe-inline';
-media-src *;">    <meta name="format-detection" content="telephone=no">
+media-src *;">
+    <meta name="format-detection" content="telephone=no">
     <meta name="msapplication-tap-highlight" content="no">
     <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover">
 
@@ -29,7 +29,7 @@ media-src *;">    <meta name="format-detection" content="telephone=no">
             </div>
 
 
-             <div id="container">
+            <div id="container">
                 <div id="barkoderView"></div>
                 <div class="btnContainer">
                     <button id="startScanBtn" class="actionButton" disabled>Start Scanning</button>
@@ -50,6 +50,7 @@ media-src *;">    <meta name="format-detection" content="telephone=no">
 
                 <div class="grupo-input">
                     <input type="text" id="input-codigo-manual" placeholder="Código de barras manual">
+                    <input type="text" id="input-cantidad-manual" placeholder="inserte cantidad de productos">
                     <button id="btnGuardar">Guardar</button>
                 </div>
 
@@ -57,21 +58,56 @@ media-src *;">    <meta name="format-detection" content="telephone=no">
             </div>
 
             <div class="historial-escaneos">
+
+                <table class="inventario">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">First</th>
+                        <th scope="col">Last</th>
+                        <th scope="col">Handle</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th scope="row">1</th>
+                        <td>Mark</td>
+                        <td>Otto</td>
+                        <td>@mdo</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">2</th>
+                        <td>Jacob</td>
+                        <td>Thornton</td>
+                        <td>@fat</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">3</th>
+                        <td>John</td>
+                        <td>Doe</td>
+                        <td>@social</td>
+                    </tr>
+                </tbody>
+            </table>
+                    <br>
                 <h4>imagen</h4>
-                  <img src="img/escanerIMG.jpg" alt="Imagen del escáner">
+                <img src="img/escanerIMG.jpg" alt="Imagen del escáner">
                 <ul id="lista-codigos" class="lista-datos"></ul>
             </div>
 
         </section>
 
         
+            
+
+      
 
 
-            <script src="cordova.js"></script>
-            <script src="js/config.js"></script>
-            <script src="js/escaner.js"></script>
+        <script src="cordova.js"></script>
+        <script src="js/config.js"></script>
+        <script src="js/escaner.js"></script>
 
-            <a href="ventas.html" class="btn-secundario">Volver al menú</a>
+        <a href="ventas.html" class="btn-secundario">Volver al menú</a>
 </body>
 </section>
 </main>

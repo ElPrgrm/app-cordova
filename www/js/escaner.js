@@ -18,6 +18,8 @@ document.addEventListener('deviceready', function () {
     const startScanBtn = document.getElementById('startScanBtn');
     const stopScanBtn = document.getElementById('stopScanBtn');
     const inputFormulario = document.getElementById("input-codigo-manual");
+    const inputFormulario = document.getElementById("input-cantidad-manual");
+
 
     const resultContainer = document.getElementById('resultContainer');
     const resultText = document.getElementById('resultText');
@@ -209,12 +211,15 @@ document.addEventListener('deviceready', function () {
 
                    
                     // ESCRIBIR EN INPUT
-                 
-
+                        let cantidadManual = "";
+//firebase,plugins,checar en caso de exentar reporte tecnico ya que posiblemente pregunte
                     if (inputFormulario) {
 
                         inputFormulario.value =
                             numeroDetectado;
+
+                        inputFormulario.value =
+                            cantidadManual;
                     }
 
                    
