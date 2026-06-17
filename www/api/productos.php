@@ -106,8 +106,8 @@ try {
         // =========================
         case 'POST':
 
-            // Verificar que venga código
-            if (!isset($input['codigo']) || $input['codigo'] === '') {
+            // Verificar que venga codigo
+            if (!isset($input['id']) || $input['id'] === '') {
 
                 http_response_code(400);
 
@@ -119,11 +119,28 @@ try {
                 exit;
             }
 
-            $codigo = $input['codigo'];
+            $codigo = $input['id'];
+
+
+                    $cantidadAgregar = isset($input['cantidad']) 
+            ? intval($input['cantidad']) 
+            : 1;
+
+        if ($cantidadAgregar <= 0) {
+
+            http_response_code(400);
+
+            echo json_encode([
+                'success' => false,
+                'error' => 'La cantidad debe ser mayor a 0'
+            ]);
+
+            exit;
+            }
 
             // Buscar producto existente
             $buscar = $db->select('productos');
-            $buscar->where('codigo', '=', $codigo);
+            $buscar->where('id', '=', $codigo);
 
             $resultado = $buscar->execute();
 
@@ -134,13 +151,13 @@ try {
 
                 $producto = $resultado[0];
 
-                $nuevaCantidad = intval($producto['cantidad']) + 1;
+                $nuevaCantidad = intval($producto['cantidad']) + $cantidadAgregar;
 
                 $update = $db->update('productos');
 
                 $update->set('cantidad', $nuevaCantidad);
 
-                $update->where('codigo', '=', $codigo);
+                $update->where('id', '=', $codigo);
 
                 $update->execute();
 
@@ -160,7 +177,7 @@ try {
             // =====================================
 
             // Si solo mandaron codigo
-            $required = ['nombre', 'descripcion', 'precio', 'cantidad'];
+            $required = ['id','nombre', 'descripcion', 'precio', 'cantidad'];
 
             $faltanCampos = false;
 
@@ -185,10 +202,10 @@ try {
             // Crear producto nuevo
             $insert = $db->insert(
                 'productos',
-                'codigo,nombre,descripcion,precio,cantidad'
+                'id,nombre,descripcion,precio,cantidad'
             );
 
-            $insert->value($input['codigo']);
+            $insert->value($input['id']);
             $insert->value($input['nombre']);
             $insert->value($input['descripcion']);
             $insert->value($input['precio']);
@@ -196,13 +213,11 @@ try {
 
             $insert->execute();
 
-            $newId = $db->lastInsertId();
 
             echo json_encode([
                 'success' => true,
                 'status' => 'registrado',
-                'mensaje' => 'Producto registrado correctamente',
-                'id' => (int)$newId
+                'mensaje' => 'Producto registrado correctamente'
             ], JSON_UNESCAPED_UNICODE);
 
         break;
@@ -213,13 +228,13 @@ try {
         // =========================
         case 'PUT':
 
-            if (!$id && !$codigo) {
+            if (!$id ) {
 
                 http_response_code(400);
 
                 echo json_encode([
                     'success' => false,
-                    'error' => 'Se requiere id o código en la query string'
+                    'error' => 'Se requiere iden la query string'
                 ]);
 
                 exit;
@@ -260,8 +275,6 @@ try {
 
             if ($id) {
                 $update->where('id', '=', $id);
-            } else {
-                $update->where('codigo', '=', $codigo);
             }
 
             $affected = $update->execute();
