@@ -121,6 +121,23 @@ try {
 
             $codigo = $input['id'];
 
+
+                    $cantidadAgregar = isset($input['cantidad']) 
+            ? intval($input['cantidad']) 
+            : 1;
+
+        if ($cantidadAgregar <= 0) {
+
+            http_response_code(400);
+
+            echo json_encode([
+                'success' => false,
+                'error' => 'La cantidad debe ser mayor a 0'
+            ]);
+
+            exit;
+            }
+
             // Buscar producto existente
             $buscar = $db->select('productos');
             $buscar->where('id', '=', $codigo);
@@ -134,7 +151,7 @@ try {
 
                 $producto = $resultado[0];
 
-                $nuevaCantidad = intval($producto['cantidad']) + 1;
+                $nuevaCantidad = intval($producto['cantidad']) + $cantidadAgregar;
 
                 $update = $db->update('productos');
 

@@ -18,7 +18,7 @@ document.addEventListener('deviceready', function () {
     const startScanBtn = document.getElementById('startScanBtn');
     const stopScanBtn = document.getElementById('stopScanBtn');
     const inputFormulario = document.getElementById("input-codigo-manual");
-    const inputFormulario = document.getElementById("input-cantidad-manual");
+    const inputCantidad = document.getElementById("input-cantidad-manual");
 
 
     const resultContainer = document.getElementById('resultContainer');
@@ -211,17 +211,21 @@ document.addEventListener('deviceready', function () {
 
                    
                     // ESCRIBIR EN INPUT
-                        let cantidadManual = "";
+                        
 //firebase,plugins,checar en caso de exentar reporte tecnico ya que posiblemente pregunte
                     if (inputFormulario) {
 
                         inputFormulario.value =
                             numeroDetectado;
-
-                        inputFormulario.value =
-                            cantidadManual;
                     }
+                    
 
+
+                   
+                // Si cantidad está vacía, poner 1 por defecto
+       if (inputCantidad && inputCantidad.value.trim() === "") {
+           inputCantidad.value = 1;
+                   }
                    
 
                     if (
@@ -352,6 +356,8 @@ if (btnGuardar) {
             const codigoAGuardar =
                 inputFormulario.value.trim();
 
+            const cantidadAGuardar =
+    parseInt(inputCantidad.value, 10) || 1;
            
             // VALIDACIÓN
             
@@ -366,7 +372,14 @@ if (btnGuardar) {
 
                 return;
             }
+                if (cantidadAGuardar <= 0) {
 
+    alert(
+        "Debes escribir una cantidad válida."
+    );
+
+    return;
+}
             try {
 
                 
@@ -394,10 +407,11 @@ if (btnGuardar) {
                                 'Content-Type':
                                     'application/json'
                             },
-
+                                //respuesta/mensaje json
                             body: JSON.stringify({
-                                id: codigoAGuardar
-                            })
+                                 id: codigoAGuardar,
+                                 cantidad: cantidadAGuardar
+                                })
                         }
                     );
 
