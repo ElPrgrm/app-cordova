@@ -17,7 +17,9 @@
     "cordova-android": "^15.0.0",
     "cordova-browser": "^7.0.0",
     "cordova-plugin-advanced-http": "^3.3.1",
-    "cordova-plugin-file": "^8.1.3"
+    "cordova-plugin-file": "^8.1.3",
+    "cordova-plugin-firebasex-core": "^2.0.0",
+    "cordova-plugin-firebasex-messaging": "^2.0.0"
   },
   "cordova": {
     "platforms": [
@@ -28,7 +30,9 @@
       "cordova-plugin-advanced-http": {
         "ANDROIDBLACKLISTSECURESOCKETPROTOCOLS": "SSLv3,TLSv1"
       },
-      "barkoder-cordova-plugin": {}
+      "barkoder-cordova-plugin": {},
+      "cordova-plugin-firebasex-core": {},
+      "cordova-plugin-firebasex-messaging": {}
     }
   }
 }
