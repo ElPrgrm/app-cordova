@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        fetch('api/login.php', {
+        fetch(API_URL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
