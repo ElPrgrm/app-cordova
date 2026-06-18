@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const loginAlert = document.getElementById('loginAlert');
     
 
-    const API_URL = 'https://elrjtd.online/DDI/API/login.php';
+    const API_URL = 'https://elrjtd.online/DDI/API/usuarios.php';
 
 
     function showAlert(message, type = 'danger') {
