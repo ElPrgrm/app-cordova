@@ -1,6 +1,10 @@
 document.addEventListener('DOMContentLoaded', function () {
     const loginForm = document.getElementById('loginForm');
     const loginAlert = document.getElementById('loginAlert');
+    
+
+    const API_URL = 'https://elrjtd.online/DDI/API/login.php';
+
 
     function showAlert(message, type = 'danger') {
         loginAlert.className = `alert alert-${type}`;
