@@ -10,9 +10,9 @@ let currentProductId = null;
 
 document.addEventListener('deviceready', function () {
 
-    
+
     // REFERENCIAS HTML
-    
+
 
     const barkoderView = document.getElementById('barkoderView');
     const startScanBtn = document.getElementById('startScanBtn');
@@ -27,6 +27,8 @@ document.addEventListener('deviceready', function () {
     const resultImage = document.getElementById('resultImage');
 
     const btnGuardar = document.getElementById('btnGuardar');
+    const mensajeSistema = document.getElementById('mensaje-sistema');
+    const tablaUltimosEscaneos = document.getElementById('tabla-ultimos-escaneos');
 
     let isScanning = false;
 
@@ -34,7 +36,7 @@ document.addEventListener('deviceready', function () {
         startScanBtn.disabled = false;
     }
 
-    
+
 
     const setActiveBarcodeTypes = async () => {
 
@@ -61,7 +63,7 @@ document.addEventListener('deviceready', function () {
         }
     };
 
-    
+
     const setBarkoderSettings = async () => {
 
         try {
@@ -93,7 +95,7 @@ document.addEventListener('deviceready', function () {
         }
     };
 
-    
+
     const resetUI = () => {
 
         if (startScanBtn) {
@@ -109,7 +111,7 @@ document.addEventListener('deviceready', function () {
         }
     };
 
-    
+
 
     const startScanning = async () => {
 
@@ -133,22 +135,24 @@ document.addEventListener('deviceready', function () {
 
         barkoderView.style.display = "block";
 
+
+
         try {
 
             const boundingRect =
                 barkoderView.getBoundingClientRect();
 
-            
+
             // LICENCIA
-         
+
 
             window.Barkoder.registerWithLicenseKey(
                 'PEmBIohr9EZXgCkySoetbwP4gvOfMcGzgxKPL2X6uqNsDDG12C05PmP2q67Lt2_Y5iOIrFsiVzsSGyKh3hYo_-RLArbX9066mPschvXbvHY9UPWiiPmtO-5q5JQy_gHuLKVUyinD5KzFexj_2uVscKgyISui-cMvixwuoKPY5oLOvzIyq8GZfNwENVA-S6C753Cp8An4X-vYPhp8dn7kQuk0dL4VFiIGpKC6pHCF1TL5mo0QDuB6WBsvMeYSoUTFHQ6xCCGqKCK8svx6nYTEK-JdkhS3ni1CyJLwt84Ox-4KE9qyM41V6fvR6jLSGLq9'
             );
 
-           
+
             // INICIALIZAR
-        
+
 
             await new Promise((resolve, reject) => {
 
@@ -170,13 +174,13 @@ document.addEventListener('deviceready', function () {
 
             await setActiveBarcodeTypes();
 
-           
+
             // ESCANEAR
-           
+
 
             window.Barkoder.startScanning(
 
-                
+
                 (resultado) => {
 
                     console.log(
@@ -194,7 +198,7 @@ document.addEventListener('deviceready', function () {
 
                         numeroDetectado =
                             resultado.decoderResults[0]
-                            .textualData;
+                                .textualData;
 
                     } else {
 
@@ -209,24 +213,24 @@ document.addEventListener('deviceready', function () {
                         numeroDetectado
                     );
 
-                   
+
                     // ESCRIBIR EN INPUT
-                        
-//firebase,plugins,checar en caso de exentar reporte tecnico ya que posiblemente pregunte
+
+                    //firebase,plugins,checar en caso de exentar reporte tecnico ya que posiblemente pregunte
                     if (inputFormulario) {
 
                         inputFormulario.value =
                             numeroDetectado;
                     }
-                    
 
 
-                   
-                // Si cantidad está vacía, poner 1 por defecto
-       if (inputCantidad && inputCantidad.value.trim() === "") {
-           inputCantidad.value = 1;
-                   }
-                   
+
+
+                    // Si  el input de  cantidad está vacío, poner 1 por defecto
+                    if (inputCantidad && inputCantidad.value.trim() === "") {
+                        inputCantidad.value = 1;
+                    }
+
 
                     if (
                         resultado &&
@@ -247,13 +251,13 @@ document.addEventListener('deviceready', function () {
 
                             resultType.textContent =
                                 resultado.decoderResults[0]
-                                .barcodeTypeName;
+                                    .barcodeTypeName;
                         }
                     }
 
-                    
+
                     // DETENER ESCANEO
-                    
+
 
                     window.Barkoder.stopScanning(
 
@@ -302,7 +306,7 @@ document.addEventListener('deviceready', function () {
         }
     };
 
-    
+
 
     const stopScanning = () => {
 
@@ -325,7 +329,7 @@ document.addEventListener('deviceready', function () {
         );
     };
 
-    
+
 
     if (startScanBtn) {
 
@@ -343,200 +347,297 @@ document.addEventListener('deviceready', function () {
         );
     }
 
-  
-  
+    //historial escaneos en local
+    const obtenerHistorialEscaneos = () => {
 
-if (btnGuardar) {
+        const historialGuardado =
+            localStorage.getItem("ultimosEscaneos");
 
-    btnGuardar.addEventListener(
-        'click',
+        return historialGuardado
+            ? JSON.parse(historialGuardado)
+            : [];
+    };
 
-        async () => {
 
-            const codigoAGuardar =
-                inputFormulario.value.trim();
+    const guardarEscaneoEnHistorial = (nuevoEscaneo) => {
 
-            const cantidadAGuardar =
-    parseInt(inputCantidad.value, 10) || 1;
-           
-            // VALIDACIÓN
-            
-            if (
-                !codigoAGuardar ||
-                codigoAGuardar === 'undefined'
-            ) {
+        let historial = obtenerHistorialEscaneos();
 
-                alert(
-                    "Primero debes escanear un código válido."
-                );
+        historial.unshift(nuevoEscaneo);
 
-                return;
-            }
-                if (cantidadAGuardar <= 0) {
+        historial = historial.slice(0, 6);
 
-    alert(
-        "Debes escribir una cantidad válida."
-    );
+        localStorage.setItem(
+            "ultimosEscaneos",
+            JSON.stringify(historial)
+        );
 
-    return;
-}
-            try {
+        mostrarUltimosEscaneos();
+    };
 
-                
+    //escaneos-tabla 
 
-                console.log(
-                    "Enviando a:",
-                    API_BASE_URL
-                );
+    const mostrarUltimosEscaneos = () => {
 
-                console.log(
-                    "Código enviado:",
-                    codigoAGuardar
-                );
+        if (!tablaUltimosEscaneos) {
+            return;
+        }
 
-                
+        const historial = obtenerHistorialEscaneos();
 
-                const respuesta =
-                    await fetch(
-                        API_BASE_URL,
-                        {
+        tablaUltimosEscaneos.innerHTML = "";
 
-                            method: 'POST',
+        if (historial.length === 0) {
 
-                            headers: {
-                                'Content-Type':
-                                    'application/json'
-                            },
-                                //respuesta/mensaje json
-                            body: JSON.stringify({
-                                 id: codigoAGuardar,
-                                 cantidad: cantidadAGuardar
-                                })
-                        }
-                    );
+            tablaUltimosEscaneos.innerHTML = `
+            <tr>
+                <td colspan="5">Aún no hay escaneos registrados.</td>
+            </tr>
+        `;
 
-                console.log(
-                    "Status HTTP:",
-                    respuesta.status
-                );
+            return;
+        }
 
-                const textoRespuesta =
-                    await respuesta.text();
+        historial.forEach((item, index) => {
 
-                console.log(
-                    "Respuesta RAW:",
-                    textoRespuesta
-                );
+            const fila = document.createElement("tr");
 
-               
+            fila.innerHTML = `
+            <th scope="row">${index + 1}</th>
+            <td>${item.codigo}</td>
+            <td>${item.cantidad}</td>
+            <td>${item.estado}</td>
+            <td>${item.fecha}</td>
+        `;
 
-                let datos;
+            tablaUltimosEscaneos.appendChild(fila);
+        });
+    };
 
-                try {
+    if (btnGuardar) {
 
-                    datos =
-                        JSON.parse(textoRespuesta);
+        btnGuardar.addEventListener(
+            'click',
 
-                } catch (jsonError) {
+            async () => {
 
-                    console.error(
-                        "JSON inválido:",
-                        jsonError
-                    );
+                const codigoAGuardar =
+                    inputFormulario.value.trim();
+
+                const cantidadAGuardar =
+                    parseInt(inputCantidad.value, 10) || 1;
+
+                // VALIDACIÓN
+
+                if (
+                    !codigoAGuardar ||
+                    codigoAGuardar === 'undefined'
+                ) {
 
                     alert(
-                        "La API no devolvió JSON válido.\n\n" +
+                        "Primero debes escanear un código válido."
+                    );
+
+                    return;
+                }
+                if (cantidadAGuardar <= 0) {
+
+                    alert(
+                        "Debes escribir una cantidad válida."
+                    );
+
+
+                    //validacion estas seguro==
+
+                    const confirmarGuardado = confirm(
+                        "¿Estás seguro de guardar este producto?\n\n" +
+                        "Código: " + codigoAGuardar + "\n" +
+                        "Cantidad: " + cantidadAGuardar
+                    );
+
+                    if (!confirmarGuardado) {
+
+                        if (mensajeSistema) {
+                            mensajeSistema.textContent =
+                                "Operación cancelada por el usuario.";
+                        }
+
+                        return;
+                    }
+
+                    return;
+                }
+                try {
+
+
+
+                    console.log(
+                        "Enviando a:",
+                        API_BASE_URL
+                    );
+
+                    console.log(
+                        "Código enviado:",
+                        codigoAGuardar
+                    );
+
+
+
+                    const respuesta =
+                        await fetch(
+                            API_BASE_URL,
+                            {
+
+                                method: 'POST',
+
+                                headers: {
+                                    'Content-Type':
+                                        'application/json'
+                                },
+                                //respuesta/mensaje json
+                                body: JSON.stringify({
+                                    id: codigoAGuardar,
+                                    cantidad: cantidadAGuardar //que cantidad actualizada vya dentro del mensaje
+                                })
+                            }
+                        );
+
+                    console.log(
+                        "Status HTTP:",
+                        respuesta.status
+                    );
+
+                    const textoRespuesta =
+                        await respuesta.text();
+
+                    console.log(
+                        "Respuesta RAW:",
                         textoRespuesta
                     );
 
-                    return;
-                }
 
-                console.log(
-                    "Respuesta API:",
-                    datos
-                );
 
-                
-                // PRODUCTO EXISTENTE
-                
-                if (
-                    datos.status === 'existe'
-                ) {
+                    let datos;
 
-                    alert(
-                        "Producto actualizado correctamente\n\n" +
-                        "Nueva cantidad: " +
-                        datos.nueva_cantidad
+                    try {
+
+                        datos =
+                            JSON.parse(textoRespuesta);
+
+                    } catch (jsonError) {
+
+                        console.error(
+                            "JSON inválido:",
+                            jsonError
+                        );
+
+                        alert(
+                            "La API no devolvió JSON válido.\n\n" +
+                            textoRespuesta
+                        );
+
+                        return;
+                    }
+
+                    console.log(
+                        "Respuesta API:",
+                        datos
                     );
 
-                    inputFormulario.value = "";
 
-                    return;
-                }
+                    // PRODUCTO EXISTENTE
 
-              
-                // PRODUCTO NUEVO
-         
+                    if (
+                        datos.status === 'existe'
+                    ) {
 
-                if (
-                    datos.status === 'nuevo'
-                ) {
+                        guardarEscaneoEnHistorial({
+                            codigo: codigoAGuardar,
+                            cantidad: cantidadAGuardar,
+                            estado: "Actualizado",
+                            fecha: new Date().toLocaleString("es-MX")
+                        });
 
-                    alert(
-                        "Producto no registrado.\n" +
-                        "Se abrirá el ñformulario."
+                        if (mensajeSistema) {
+                            mensajeSistema.textContent =
+                                "Producto actualizado correctamente. Nueva cantidad: " +
+                                datos.nueva_cantidad;
+                        }
+
+                        alert(
+                            "Producto actualizado correctamente\n\n" +
+                            "Nueva cantidad: " +
+                            datos.nueva_cantidad
+                        );
+
+                        inputFormulario.value = "";
+                        inputCantidad.value = 1;
+
+                        return;
+                    }
+
+
+                    // PRODUCTO NUEVO
+
+
+                    if (
+                        datos.status === 'nuevo'
+                    ) {
+
+                        alert(
+                            "Producto no registrado.\n" +
+                            "Se abrirá el ñformulario."
+                        );
+
+                        window.location.href =
+                            `form.html?modeAdd=${encodeURIComponent(codigoAGuardar)}`;
+
+                        return;
+                    }
+
+
+                    // ERROR SERVIDOR
+
+
+                    if (datos.error) {
+
+                        alert(
+                            "Error del servidor:\n\n" +
+                            datos.error
+                        );
+
+                        return;
+                    }
+
+                    // RESPUESTA RARA
+
+                    console.warn(
+                        "Respuesta inesperada:",
+                        datos
                     );
 
-                    window.location.href =
-                        `form.html?modeAdd=${encodeURIComponent(codigoAGuardar)}`;
-
-                    return;
-                }
-
-                
-                // ERROR SERVIDOR
-               
-
-                if (datos.error) {
-
                     alert(
-                        "Error del servidor:\n\n" +
-                        datos.error
+                        "Respuesta inesperada del servidor."
                     );
 
-                    return;
+                } catch (error) {
+
+
+                    // ERROR REAL
+
+
+                    console.error(
+                        "ERROR COMPLETO:",
+                        error
+                    );
+
+                    alert(
+                        "ERROR REAL:\n\n" +
+                        error.message
+                    );
                 }
-
-                // RESPUESTA RARA
-
-                console.warn(
-                    "Respuesta inesperada:",
-                    datos
-                );
-
-                alert(
-                    "Respuesta inesperada del servidor."
-                );
-
-            } catch (error) {
-
-               
-                // ERROR REAL
-          
-
-                console.error(
-                    "ERROR COMPLETO:",
-                    error
-                );
-
-                alert(
-                    "ERROR REAL:\n\n" +
-                    error.message
-                );
             }
-        }
-    );
-}
+        );
+    }
 
 }, false);

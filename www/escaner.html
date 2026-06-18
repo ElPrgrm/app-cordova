@@ -50,46 +50,32 @@ media-src *;">
 
                 <div class="grupo-input">
                     <input type="text" id="input-codigo-manual" placeholder="Código de barras manual">
-                    <input type="text" id="input-cantidad-manual" placeholder="inserte cantidad de productos">
+                    <input type="number" id="input-cantidad-manual" placeholder="Inserte cantidad de productos" min="1"
+                        value="1">
                     <button id="btnGuardar">Guardar</button>
                 </div>
 
                 <p id="mensaje-sistema" class="mensaje-sistema"></p>
             </div>
 
-            <div class="historial-escaneos">
+            <table class="inventario">
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Código</th>
+            <th scope="col">Cantidad</th>
+            <th scope="col">Estado</th>
+            <th scope="col">Fecha/Hora</th>
+        </tr>
+    </thead>
 
-                <table class="inventario">
-                <thead>
-                    <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">First</th>
-                        <th scope="col">Last</th>
-                        <th scope="col">Handle</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <th scope="row">1</th>
-                        <td>Mark</td>
-                        <td>Otto</td>
-                        <td>@mdo</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">2</th>
-                        <td>Jacob</td>
-                        <td>Thornton</td>
-                        <td>@fat</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">3</th>
-                        <td>John</td>
-                        <td>Doe</td>
-                        <td>@social</td>
-                    </tr>
-                </tbody>
-            </table>
-                    <br>
+    <tbody id="tabla-ultimos-escaneos">
+        <tr>
+            <td colspan="5">Aún no hay escaneos registrados.</td>
+        </tr>
+    </tbody>
+</table>
+                <br>
                 <h4>imagen</h4>
                 <img src="img/escanerIMG.jpg" alt="Imagen del escáner">
                 <ul id="lista-codigos" class="lista-datos"></ul>
@@ -97,10 +83,10 @@ media-src *;">
 
         </section>
 
-        
-            
 
-      
+
+
+
 
 
         <script src="cordova.js"></script>
