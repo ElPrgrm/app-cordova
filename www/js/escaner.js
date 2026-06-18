@@ -413,231 +413,240 @@ document.addEventListener('deviceready', function () {
             tablaUltimosEscaneos.appendChild(fila);
         });
     };
+if (btnGuardar) {
 
-    if (btnGuardar) {
+    btnGuardar.addEventListener(
+        'click',
 
-        btnGuardar.addEventListener(
-            'click',
+        async () => {
 
-            async () => {
+            const codigoAGuardar =
+                inputFormulario.value.trim();
 
-                const codigoAGuardar =
-                    inputFormulario.value.trim();
+            const cantidadAGuardar =
+                parseInt(inputCantidad.value, 10);
 
-                const cantidadAGuardar =
-                    parseInt(inputCantidad.value, 10) || 1;
+            // VALIDAR CÓDIGO
 
-                // VALIDACIÓN
+            if (
+                !codigoAGuardar ||
+                codigoAGuardar === 'undefined'
+            ) {
 
-                if (
-                    !codigoAGuardar ||
-                    codigoAGuardar === 'undefined'
-                ) {
+                alert(
+                    "Primero debes escanear o escribir un código válido."
+                );
 
-                    alert(
-                        "Primero debes escanear un código válido."
-                    );
+                return;
+            }
 
-                    return;
+            // VALIDAR CANTIDAD
+
+            if (
+                isNaN(cantidadAGuardar) ||
+                cantidadAGuardar <= 0
+            ) {
+
+                alert(
+                    "Debes escribir una cantidad válida."
+                );
+
+                return;
+            }
+
+            // CONFIRMAR ANTES DE GUARDAR
+
+            const confirmarGuardado = confirm(
+                "¿Estás seguro de guardar este producto?\n\n" +
+                "Código: " + codigoAGuardar + "\n" +
+                "Cantidad: " + cantidadAGuardar
+            );
+
+            if (!confirmarGuardado) {
+
+                if (mensajeSistema) {
+                    mensajeSistema.textContent =
+                        "Operación cancelada por el usuario.";
                 }
-                if (cantidadAGuardar <= 0) {
 
-                    alert(
-                        "Debes escribir una cantidad válida."
-                    );
+                return;
+            }
 
+            try {
 
-                    //validacion estas seguro==
+                console.log(
+                    "Enviando a:",
+                    API_BASE_URL
+                );
 
-                    const confirmarGuardado = confirm(
-                        "¿Estás seguro de guardar este producto?\n\n" +
-                        "Código: " + codigoAGuardar + "\n" +
-                        "Cantidad: " + cantidadAGuardar
-                    );
+                console.log(
+                    "Código enviado:",
+                    codigoAGuardar
+                );
 
-                    if (!confirmarGuardado) {
+                console.log(
+                    "Cantidad enviada:",
+                    cantidadAGuardar
+                );
 
-                        if (mensajeSistema) {
-                            mensajeSistema.textContent =
-                                "Operación cancelada por el usuario.";
+                const respuesta =
+                    await fetch(
+                        API_BASE_URL,
+                        {
+
+                            method: 'POST',
+
+                            headers: {
+                                'Content-Type':
+                                    'application/json'
+                            },
+
+                            body: JSON.stringify({
+                                id: codigoAGuardar,
+                                cantidad: cantidadAGuardar
+                            })
                         }
+                    );
 
-                        return;
-                    }
+                console.log(
+                    "Status HTTP:",
+                    respuesta.status
+                );
 
-                    return;
-                }
+                const textoRespuesta =
+                    await respuesta.text();
+
+                console.log(
+                    "Respuesta RAW:",
+                    textoRespuesta
+                );
+
+                let datos;
+
                 try {
 
+                    datos =
+                        JSON.parse(textoRespuesta);
 
+                } catch (jsonError) {
 
-                    console.log(
-                        "Enviando a:",
-                        API_BASE_URL
+                    console.error(
+                        "JSON inválido:",
+                        jsonError
                     );
 
-                    console.log(
-                        "Código enviado:",
-                        codigoAGuardar
-                    );
-
-
-
-                    const respuesta =
-                        await fetch(
-                            API_BASE_URL,
-                            {
-
-                                method: 'POST',
-
-                                headers: {
-                                    'Content-Type':
-                                        'application/json'
-                                },
-                                //respuesta/mensaje json
-                                body: JSON.stringify({
-                                    id: codigoAGuardar,
-                                    cantidad: cantidadAGuardar //que cantidad actualizada vya dentro del mensaje
-                                })
-                            }
-                        );
-
-                    console.log(
-                        "Status HTTP:",
-                        respuesta.status
-                    );
-
-                    const textoRespuesta =
-                        await respuesta.text();
-
-                    console.log(
-                        "Respuesta RAW:",
+                    alert(
+                        "La API no devolvió JSON válido.\n\n" +
                         textoRespuesta
                     );
 
+                    return;
+                }
 
+                console.log(
+                    "Respuesta API:",
+                    datos
+                );
 
-                    let datos;
+                // PRODUCTO EXISTENTE
 
-                    try {
+                if (
+                    datos.status === 'existe'
+                ) {
 
-                        datos =
-                            JSON.parse(textoRespuesta);
+                    guardarEscaneoEnHistorial({
+                        codigo: codigoAGuardar,
+                        cantidad: cantidadAGuardar,
+                        estado: "Actualizado",
+                        fecha: new Date().toLocaleString("es-MX")
+                    });
 
-                    } catch (jsonError) {
-
-                        console.error(
-                            "JSON inválido:",
-                            jsonError
-                        );
-
-                        alert(
-                            "La API no devolvió JSON válido.\n\n" +
-                            textoRespuesta
-                        );
-
-                        return;
+                    if (mensajeSistema) {
+                        mensajeSistema.textContent =
+                            "Producto actualizado correctamente. Nueva cantidad: " +
+                            datos.nueva_cantidad;
                     }
 
-                    console.log(
-                        "Respuesta API:",
-                        datos
+                    alert(
+                        "Producto actualizado correctamente\n\n" +
+                        "Nueva cantidad: " +
+                        datos.nueva_cantidad
                     );
 
+                    inputFormulario.value = "";
+                    inputCantidad.value = 1;
 
-                    // PRODUCTO EXISTENTE
+                    return;
+                }
 
-                    if (
-                        datos.status === 'existe'
-                    ) {
+                // PRODUCTO NUEVO
 
-                        guardarEscaneoEnHistorial({
-                            codigo: codigoAGuardar,
-                            cantidad: cantidadAGuardar,
-                            estado: "Actualizado",
-                            fecha: new Date().toLocaleString("es-MX")
-                        });
+                if (
+                    datos.status === 'nuevo'
+                ) {
 
-                        if (mensajeSistema) {
-                            mensajeSistema.textContent =
-                                "Producto actualizado correctamente. Nueva cantidad: " +
-                                datos.nueva_cantidad;
-                        }
+                    guardarEscaneoEnHistorial({
+                        codigo: codigoAGuardar,
+                        cantidad: cantidadAGuardar,
+                        estado: "Pendiente de registro",
+                        fecha: new Date().toLocaleString("es-MX")
+                    });
 
-                        alert(
-                            "Producto actualizado correctamente\n\n" +
-                            "Nueva cantidad: " +
-                            datos.nueva_cantidad
-                        );
+                    const confirmarRegistro = confirm(
+                        "El producto no está registrado.\n\n" +
+                        "¿Deseas abrir el formulario para registrarlo?"
+                    );
 
-                        inputFormulario.value = "";
-                        inputCantidad.value = 1;
-
-                        return;
-                    }
-
-
-                    // PRODUCTO NUEVO
-
-
-                    if (
-                        datos.status === 'nuevo'
-                    ) {
-
-                        alert(
-                            "Producto no registrado.\n" +
-                            "Se abrirá el ñformulario."
-                        );
+                    if (confirmarRegistro) {
 
                         window.location.href =
                             `form.html?modeAdd=${encodeURIComponent(codigoAGuardar)}`;
 
-                        return;
+                    } else {
+
+                        if (mensajeSistema) {
+                            mensajeSistema.textContent =
+                                "Registro cancelado. El producto quedó pendiente.";
+                        }
                     }
 
-
-                    // ERROR SERVIDOR
-
-
-                    if (datos.error) {
-
-                        alert(
-                            "Error del servidor:\n\n" +
-                            datos.error
-                        );
-
-                        return;
-                    }
-
-                    // RESPUESTA RARA
-
-                    console.warn(
-                        "Respuesta inesperada:",
-                        datos
-                    );
-
-                    alert(
-                        "Respuesta inesperada del servidor."
-                    );
-
-                } catch (error) {
-
-
-                    // ERROR REAL
-
-
-                    console.error(
-                        "ERROR COMPLETO:",
-                        error
-                    );
-
-                    alert(
-                        "ERROR REAL:\n\n" +
-                        error.message
-                    );
+                    return;
                 }
-            }
-        );
-    }
 
+                // ERROR SERVIDOR
+
+                if (datos.error) {
+
+                    alert(
+                        "Error del servidor:\n\n" +
+                        datos.error
+                    );
+
+                    return;
+                }
+
+                console.warn(
+                    "Respuesta inesperada:",
+                    datos
+                );
+
+                alert(
+                    "Respuesta inesperada del servidor."
+                );
+
+            } catch (error) {
+
+                console.error(
+                    "ERROR COMPLETO:",
+                    error
+                );
+
+                alert(
+                    "ERROR REAL:\n\n" +
+                    error.message
+                );
+            }
+        }
+    );
+}
 }, false);
