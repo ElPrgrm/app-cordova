@@ -12,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 $input = json_decode(file_get_contents('php://input'), true) ?: $_POST;
-$username = trim($input['username'] ?? '');
+$username = trim($input['name'] ?? '');
 $password = trim($input['password'] ?? '');
 
 if ($username === '' || $password === '') {
