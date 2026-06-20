@@ -25,20 +25,45 @@ $username = trim($input['username'] ?? '');
 $password = trim($input['password'] ?? '');
 $uuid = trim($input['uuid'] ?? '');
 
-if ($action === 'register') {
+/**
+ * Crea un usuario en la base de datos.
+ * Retorna un array con keys: success (bool), code (int, opcional), message/error y user (opcional).
+ */
+function createUser($db, $username, $password, $uuid = '') {
     if ($username === '' || $password === '') {
-        http_response_code(400);
-        echo json_encode([
-            'success' => false,
-            'error' => 'Debes enviar usuario y contrase���a para el registro.'
-        ], JSON_UNESCAPED_UNICODE);
-        exit;
+        return ['success' => false, 'code' => 400, 'error' => 'Debes enviar usuario y contraseña para el registro.'];
     }
 
     if ($uuid === '') {
         $uuid = generateUuidV4();
     }
 
+    // comprobar existencia
+    $existing = $db->select('usuarios');
+    $existing->where('username', '=', $username);
+    $rows = $existing->execute();
+
+    if (!empty($rows)) {
+        return ['success' => false, 'code' => 409, 'error' => 'El nombre de usuario ya existe.'];
+    }
+
+    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+
+    $insert = $db->insert('usuarios', 'uuid,username,password,token');
+    $insert->value($uuid);
+    $insert->value($username);
+    $insert->value($hashedPassword);
+    $insert->value('');
+    $insert->execute();
+
+    return [
+        'success' => true,
+        'message' => 'Usuario registrado correctamente.',
+        'user' => [ 'uuid' => $uuid, 'username' => $username ]
+    ];
+}
+
+if ($action === 'register') {
     try {
         $db = getConexion();
     } catch (Exception $e) {
@@ -51,35 +76,21 @@ if ($action === 'register') {
     }
 
     try {
-        $existing = $db->select('usuarios');
-        $existing->where('username', '=', $username);
-        $rows = $existing->execute();
-
-        if (!empty($rows)) {
-            http_response_code(409);
+        $res = createUser($db, $username, $password, $uuid);
+        if (!$res['success']) {
+            $code = $res['code'] ?? 400;
+            http_response_code($code);
             echo json_encode([
                 'success' => false,
-                'error' => 'El nombre de usuario ya existe.'
+                'error' => $res['error']
             ], JSON_UNESCAPED_UNICODE);
             exit;
         }
 
-        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-
-        $insert = $db->insert('usuarios', 'uuid,username,password,token');
-        $insert->value($uuid);
-        $insert->value($username);
-        $insert->value($hashedPassword);
-        $insert->value('');
-        $insert->execute();
-
         echo json_encode([
             'success' => true,
-            'message' => 'Usuario registrado correctamente.',
-            'user' => [
-                'uuid' => $uuid,
-                'username' => $username
-            ]
+            'message' => $res['message'],
+            'user' => $res['user']
         ], JSON_UNESCAPED_UNICODE);
         exit;
     } catch (Exception $e) {
