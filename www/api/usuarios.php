@@ -30,7 +30,7 @@ if ($action === 'register') {
         http_response_code(400);
         echo json_encode([
             'success' => false,
-            'error' => 'Debes enviar usuario y contraseña para el registro.'
+            'error' => 'Debes enviar usuario y contrase���a para el registro.'
         ], JSON_UNESCAPED_UNICODE);
         exit;
     }
@@ -52,7 +52,7 @@ if ($action === 'register') {
 
     try {
         $existing = $db->select('usuarios');
-        $existing->where('name', '=', $username);
+        $existing->where('username', '=', $username);
         $rows = $existing->execute();
 
         if (!empty($rows)) {
@@ -66,7 +66,7 @@ if ($action === 'register') {
 
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
-        $insert = $db->insert('usuarios', 'uuid,name,password,token');
+        $insert = $db->insert('usuarios', 'uuid,username,password,token');
         $insert->value($uuid);
         $insert->value($username);
         $insert->value($hashedPassword);
@@ -78,7 +78,7 @@ if ($action === 'register') {
             'message' => 'Usuario registrado correctamente.',
             'user' => [
                 'uuid' => $uuid,
-                'name' => $username
+                'username' => $username
             ]
         ], JSON_UNESCAPED_UNICODE);
         exit;
@@ -96,7 +96,7 @@ if ($username === '' || $password === '') {
     http_response_code(400);
     echo json_encode([
         'success' => false,
-        'error' => 'Debes enviar usuario y contraseña.'
+        'error' => 'Debes enviar usuario y contrase���a.'
     ], JSON_UNESCAPED_UNICODE);
     exit;
 }
@@ -114,14 +114,14 @@ try {
 
 try {
     $select = $db->select('usuarios');
-    $select->where('name', '=', $username);
+    $select->where('username', '=', $username);
     $rows = $select->execute();
 
     if (empty($rows)) {
         http_response_code(401);
         echo json_encode([
             'success' => false,
-            'error' => 'Usuario o contraseña incorrectos.'
+            'error' => 'Usuario o contrase���a incorrectos.'
         ], JSON_UNESCAPED_UNICODE);
         exit;
     }
@@ -142,7 +142,7 @@ try {
         http_response_code(401);
         echo json_encode([
             'success' => false,
-            'error' => 'Usuario o contraseña incorrectos.'
+            'error' => 'Usuario o contrase���a incorrectos.'
         ], JSON_UNESCAPED_UNICODE);
         exit;
     }
@@ -155,11 +155,11 @@ try {
 
     echo json_encode([
         'success' => true,
-        'message' => 'Inicio de sesión exitoso.',
+        'message' => 'Inicio de sesi���n exitoso.',
         'user' => [
             'id' => intval($user['id']),
             'uuid' => $user['uuid'] ?? null,
-            'name' => $user['name']
+            'name' => $user['username']
         ],
         'token' => $token
     ], JSON_UNESCAPED_UNICODE);
