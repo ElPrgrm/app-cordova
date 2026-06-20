@@ -21,7 +21,7 @@ function generateUuidV4()
 
 $input = json_decode(file_get_contents('php://input'), true) ?: $_POST;
 $action = strtolower(trim($input['action'] ?? 'login'));
-$username = trim($input['username'] ?? '');
+$username = trim($input['name'] ?? '');
 $password = trim($input['password'] ?? '');
 $uuid = trim($input['uuid'] ?? '');
 
