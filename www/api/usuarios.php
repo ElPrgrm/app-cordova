@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/conector.php';
-
+ini_set('display_errors', 1);
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
@@ -34,8 +34,6 @@ if ($action === 'register') {
         ], JSON_UNESCAPED_UNICODE);
         exit;
     }
-    
-    ini_set('display_errors', 1);
 
     if ($uuid === '') {
         $uuid = generateUuidV4();
