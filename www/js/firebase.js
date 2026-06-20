@@ -1,6 +1,8 @@
-let listenerNotification = (message) =>{
-    console.log("firebaseLogs default listener",message);
-    
+const API_SEND_URL = 'https://elrjtd.online/DDI/API/firebase/sendNotification.php';
+
+let listenerNotification = (message) => {
+    console.log("firebaseLogs default listener", message);
+
 };
 
 
@@ -8,7 +10,7 @@ let listenerNotification = (message) =>{
  * funcion principal para recibir notificaciones
  * @param {(message)=>{}} el listener que recibira la notificación
  */
-function setNotificationListener(listener){
+function setNotificationListener(listener) {
     listenerNotification = listener;
 }
 /* Calcula el precio total de un producto aplicando impuestos y un descuento opcional.
@@ -17,18 +19,46 @@ function setNotificationListener(listener){
  * @param {array} [data = undefined] - un array de datos para enviar
  * @returns {number} El precio final neto redondeado a dos decimales.
  */
-function sendNotification(title,body,data = undefined){
-    
+async function sendNotification(title, body, data = undefined) {
+    const UUID = "as_as_as";//localStorage.getItem("UUID");
+
+    if (UUID == undefined || UUID == null) {
+        return "sin sesión encontrada encontrado"
+    }
+
+        let dt = {
+            "UUID": UUID,
+            "title": title,
+            "body": body,
+            "data": data
+        }
+    const response = await fetch(API_SEND_URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(dt)
+    });
+
+    if (!response.ok) {
+        const errorBody = await tryParseJson(response);
+        console.log(errorBody);
+        
+        return null;// { success: false, error: errorBody?.error || `Error HTTP ${response.status}` };
+    }
+
+    return response.json();
+
 
 }
 
-function onListener(message){
-    if(listenerNotification != undefined && listenerNotification != null ){
+function onListener(message) {
+    if (listenerNotification != undefined && listenerNotification != null) {
         listenerNotification(onmessage);
     }
-    else{
+    else {
         console.log("firebaseLogs no se encontro un listener");
-        
+
     }
 
 }
