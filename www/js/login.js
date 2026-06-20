@@ -17,8 +17,6 @@ document.addEventListener('DOMContentLoaded', function () {
         loginAlert.textContent = '';
     }
 
-    const API_URL = 'https://elrjtd.online/DDI/API/usuarios.php';
-
     loginForm.addEventListener('submit', function (event) {
         event.preventDefault();
         hideAlert();
