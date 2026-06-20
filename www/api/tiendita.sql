@@ -91,6 +91,7 @@ INSERT INTO `productos` (`id`, `nombre`, `descripcion`, `precio`, `cantidad`) VA
 
 CREATE TABLE `usuarios` (
   `id` int(100) NOT NULL,
+  `uuid` varchar(36) NOT NULL,
   `name` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
   `token` varchar(500) NOT NULL
@@ -142,10 +143,11 @@ ALTER TABLE `productos`
 -- Indices de la tabla `usuarios`
 --
 ALTER TABLE `usuarios`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `uuid` (`uuid`);
 
-INSERT INTO `usuarios` (`id`, `name`, `password`, `token`) VALUES
-(1, 'admin', '$2y$10$qlzKK1JpJoba57dQYOXYe.ESsnGctgbaSu87q.LgO.w2sinJ4GIKm', '');
+INSERT INTO `usuarios` (`id`, `uuid`, `name`, `password`, `token`) VALUES
+(1, '11111111-1111-4111-8111-111111111111', 'admin', '$2y$10$qlzKK1JpJoba57dQYOXYe.ESsnGctgbaSu87q.LgO.w2sinJ4GIKm', '');
 
 --
 -- Indices de la tabla `ventas`
