@@ -17,6 +17,8 @@ document.addEventListener('DOMContentLoaded', function () {
         loginAlert.textContent = '';
     }
 
+    const API_URL = 'https://elrjtd.online/DDI/API/usuarios.php';
+
     loginForm.addEventListener('submit', function (event) {
         event.preventDefault();
         hideAlert();
@@ -41,6 +43,9 @@ document.addEventListener('DOMContentLoaded', function () {
             if (result.status === 200 && result.body.success) {
                 localStorage.setItem('loggedUser', JSON.stringify(result.body.user));
                 localStorage.setItem('authToken', result.body.token);
+                if (result.body.user && result.body.user.uuid) {
+                    localStorage.setItem('UUID', result.body.user.uuid);
+                }
                 window.location.href = 'index.html';
             } else {
                 showAlert(result.body.error || 'Usuario o contraseña incorrectos.');

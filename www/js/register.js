@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const form = document.getElementById('registerForm');
     const alertBox = document.getElementById('registerAlert');
 
-    // Use relative API path to work locally
+    // Use external API server
     const API_URL = 'https://elrjtd.online/DDI/API/usuarios.php';
 
     function showAlert(message, type = 'danger') {
