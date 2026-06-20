@@ -34,6 +34,8 @@ if ($action === 'register') {
         ], JSON_UNESCAPED_UNICODE);
         exit;
     }
+    
+    ini_set('display_errors', 1);
 
     if ($uuid === '') {
         $uuid = generateUuidV4();
