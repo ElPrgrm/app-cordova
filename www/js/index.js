@@ -23,7 +23,8 @@ document.addEventListener('deviceready', onDeviceReady, false);
 
 function onDeviceReady() {
     // Cordova is now initialized. Have fun!
-        window.location.href =`ventas.html`;
-/*    console.log('Running cordova-' + cordova.platformId + '@' + cordova.version);
-    document.getElementById('deviceready').classList.add('ready');*/
+    // Mantener en la página actual para que el menú de la app funcione correctamente.
+    // console.log('Running cordova-' + cordova.platformId + '@' + cordova.version);
+    // document.getElementById('deviceready').classList.add('ready');
 }
+
