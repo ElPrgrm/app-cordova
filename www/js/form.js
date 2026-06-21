@@ -11,6 +11,15 @@ function init() {
     document.getElementById("buttons_alert").addEventListener("click", () => {
         hideMessage();
     })
+
+
+    setNotificationListener((msg)=>{
+        console.log("firebaseLogs form listener executed");
+        const message = msg.json();
+        console.log("firebaseLogs form listener data received: ",message.data);
+      //  showMessage("hi")
+        showMessage(msg.data.join("-"))
+    })
 }
 
 function onBackButton(event) {
