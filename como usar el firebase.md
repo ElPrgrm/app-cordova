@@ -57,7 +57,7 @@ finalmente, para enviar una notificación:
     */
     window.AppFirebase.sendNotification(" titulo de muestra","descripcion de notificacion",{"dato_1":"su contenido","dato_n":"su contenido"},"producto agregado")
 ```
-
+SI NO SE LE PASARA DATA, PASAR COMO PARAMETRO UN ARRAY VACIO ->  {}
 donde el primer parametro sera el titulo de la notificación.
 el segundo sera para la descripcion,
 el tercero un array de datos OPCIONALES si se considera que deben pasar algo con lo que otros usuarios interactuen,

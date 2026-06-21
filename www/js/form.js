@@ -22,7 +22,7 @@ function connectToFirebase() {
         // Evaluamos qué evento llegó usando el Enum global
         switch (event) {
             case window.AppFirebase.Events.MESSAGERECEIVED:
-               showMessage(msg.data_1)
+                showMessage(msg.data_1)
                 break;
 
             case window.AppFirebase.Events.TOKENUPDATED:
@@ -35,8 +35,8 @@ function connectToFirebase() {
         }
     });
 
-   
-  
+
+
 }
 function onBackButton(event) {
     // Evita el comportamiento por defecto (que suele ser cerrar la app de golpe)
@@ -125,6 +125,8 @@ async function onFormSubmit(event) {
     if (submitButton && submitButton.disabled) return; // Evitar envíos dobles
 
     const producto = getFormData();
+    console.log(producto);
+
     if (!producto) {
         showMessage('Por favor completa todos los campos correctamente.', true);
         return;
@@ -150,6 +152,10 @@ async function onFormSubmit(event) {
             showMessage(message);
             if (!currentProductId) {
                 document.getElementById('product-form').reset();
+                notificarNuevoProducto(producto);
+            }
+            else {
+                notificarProductoActualizado(producto);
             }
         } else {
             showMessage(result.error || 'No se pudo guardar el producto.', true);
@@ -162,9 +168,17 @@ async function onFormSubmit(event) {
             submitButton.disabled = false;
             submitButton.textContent = originalText;
         }
+        //TODO: hay que notificar los cmbios
+
     }
 }
 
+function notificarNuevoProducto(producto) {
+    window.AppFirebase.sendNotification("producto registrado", `el producto ${producto.nombre} ahora esta disponible`,{},"NuevoProducto")
+}
+function notificarProductoActualizado(producto) {
+    window.AppFirebase.sendNotification("producto actualizado", `el producto ${producto.nombre} tiene cambios`,{},"ActualizarProducto")
+}
 async function createProducto(productoData) {
     const response = await fetch(API_BASE_URL, {
         method: 'POST',
