@@ -38,13 +38,15 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .then(response => response.json().then(data => ({ status: response.status, body: data })))
         .then(result => {
+           // console.log("result",result);
+            
             if (result.status === 200 && result.body.success) {
                 localStorage.setItem('loggedUser', JSON.stringify(result.body.user));
                 localStorage.setItem('authToken', result.body.token);
                 if (result.body.user && result.body.user.uuid) {
                     localStorage.setItem('UUID', result.body.user.uuid);
                 }
-                window.location.href = 'index.html';
+               window.location.href = 'ventas.html';
             } else {
                 showAlert(result.body.error || 'Usuario o contraseña incorrectos.');
             }

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -14,12 +15,14 @@
             justify-content: center;
             background: #f8fafc;
         }
+
         .login-card {
             width: min(420px, 100%);
             border: 0;
             border-radius: 1rem;
             box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
         }
+
         .brand-icon {
             width: 56px;
             height: 56px;
@@ -30,11 +33,13 @@
             background: #0d6efd;
             color: white;
         }
+
         .form-footer {
             font-size: 0.95rem;
         }
     </style>
 </head>
+
 <body>
     <main class="container py-4">
         <div class="card login-card shadow-sm">
@@ -52,11 +57,13 @@
                 <form id="loginForm">
                     <div class="mb-3">
                         <label for="username" class="form-label">Usuarios</label>
-                        <input id="username" name="username" type="text" class="form-control" required autocomplete="username" placeholder="Nombre de usuario">
+                        <input id="username" name="username" type="text" class="form-control" required
+                            autocomplete="username" placeholder="Nombre de usuario">
                     </div>
                     <div class="mb-3">
                         <label for="password" class="form-label">Contraseña</label>
-                        <input id="password" name="password" type="password" class="form-control" required autocomplete="current-password" placeholder="Contraseña">
+                        <input id="password" name="password" type="password" class="form-control" required
+                            autocomplete="current-password" placeholder="Contraseña">
                     </div>
                     <button type="submit" class="btn btn-primary w-100">Entrar</button>
                 </form>
@@ -67,7 +74,8 @@
             </div>
         </div>
     </main>
-
+    <script src="js/firebase-core.js"></script>
     <script src="js/login.js"></script>
 </body>
+
 </html>

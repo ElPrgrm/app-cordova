@@ -13,15 +13,31 @@ function init() {
     })
 
 
-    setNotificationListener((msg)=>{
-        console.log("firebaseLogs form listener executed");
-        const message = msg.json();
-        console.log("firebaseLogs form listener data received: ",message.data);
-      //  showMessage("hi")
-        showMessage(msg.data.join("-"))
-    })
+    connectToFirebase();
 }
 
+function connectToFirebase() {
+    window.AppFirebase.setListener((event, message) => {
+
+        // Evaluamos qué evento llegó usando el Enum global
+        switch (event) {
+            case window.AppFirebase.Events.MESSAGERECEIVED:
+               showMessage(msg.data_1)
+                break;
+
+            case window.AppFirebase.Events.TOKENUPDATED:
+                console.log("Token refrescado con éxito:", message);
+                break;
+
+            case window.AppFirebase.Events.ERROR:
+                alert("Error en Firebase: " + message);
+                break;
+        }
+    });
+
+   
+  
+}
 function onBackButton(event) {
     // Evita el comportamiento por defecto (que suele ser cerrar la app de golpe)
     event.preventDefault();
@@ -275,7 +291,7 @@ function getFormData() {
 }
 
 function showMessage(text, isError = false, action = null, textAction) {
-    console.log("called show message");
+
 
     const cntnrAlert = document.getElementById('formMessage');
     if (!cntnrAlert) {

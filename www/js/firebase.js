@@ -1,19 +1,33 @@
 const API_SEND_URL = 'https://elrjtd.online/DDI/API/firebase/sendNotification.php';
+const API_UPDATE_TOKEN_URL = 'https://elrjtd.online/DDI/API/firebase/update_token.php';
 
-let listenerNotification = (message) => {
-    console.log("firebaseLogs default listener", message);
+const events = Object.freeze({
+    MESSAGERECEIVED: "MESSAGERECEIVED",
+    TOKENUPDATED: "TOKENUPDATED",
+    ERROR: "ERROR"
+});
+
+
+
+
+
+
+
+let listenerNotification = (event, message) => {
+    console.log("firebaseLogs default listener message:", message);
+    console.log("firebaseLogs default listener event:", event);
 
 };
 
 
 /*
  * funcion principal para recibir notificaciones
- * @param {(message)=>{}} el listener que recibira la notificación
+ * @param {(event,message)=>{}} el listener que recibira la notificación
  */
 function setNotificationListener(listener) {
-    
+
     listenerNotification = listener;
-    console.log("firebaseLogs new listener setted",listenerNotification);
+    console.log("firebaseLogs new listener setted", listenerNotification);
 }
 /* Calcula el precio total de un producto aplicando impuestos y un descuento opcional.
  * @param {string} title - el titulo de la notificación
@@ -22,7 +36,7 @@ function setNotificationListener(listener) {
  * @returns {number} El precio final neto redondeado a dos decimales.
  */
 async function sendNotification(title, body, data = undefined) {
-    const UUID = "as_as_as";//localStorage.getItem("UUID");
+    const UUID = localStorage.getItem("UUID");//localStorage.getItem("UUID");
 
     if (UUID == undefined || UUID == null) {
         return "sin sesión encontrada encontrado"
@@ -50,8 +64,8 @@ async function sendNotification(title, body, data = undefined) {
             return null;// { success: false, error: errorBody?.error || `Error HTTP ${response.status}` };
         }
     } catch (error) {
-          console.log(error);
-          return null;
+        console.log(error);
+        return null;
     }
 
 
@@ -60,12 +74,10 @@ async function sendNotification(title, body, data = undefined) {
 
 }
 
-function onListener(message) {
-    console.log("firebaseLogs try call listener ");
-    console.log("firebaseLogs listener is setted?  ",listenerNotification != undefined && listenerNotification != null? true:false);
-    
+function onListener(event, message) {
+
     if (listenerNotification != undefined && listenerNotification != null) {
-        listenerNotification(message);
+        listenerNotification(event, message);
     }
     else {
         console.log("firebaseLogs no se encontro un listener");
@@ -78,24 +90,19 @@ function fbListeners() {
     decoradorObtenerFBToken()
 
     window.FirebasexMessaging.onTokenRefresh(function (token) {
-        localStorage.setItem("helloFBToken", token)
-        console.log("firebaseLogs token", token);
-
-        console.log("firebaseLogs token actualizado");
+        if (token) {
+            updateTokenServer(token);
+        }
     }, function (error) {
-        // Error al refrescar el Firebase Token
+        // Error al obtener Firebase Token
+        onListener(events.ERROR, "no se logro obtener el token")
     })
 
     window.FirebasexMessaging.onMessageReceived(function (message) {
-        console.log("firebaseLogs Message type: " + message.messageType);
-        console.log("firebaseLogs Message body: " + message.body);
-        console.log("firebaseLogs Message title: " + message.title);
-        console.log("firebaseLogs Message data: " + message.data);
-        let mensaje = (message.body || "Sin mensaje")
 
-        onListener(message);
+        onListener(events.MESSAGERECEIVED, message);
 
-        fbOnPushNotification(mensaje)
+        //fbOnPushNotification(mensaje)
     })
 
 
@@ -103,16 +110,45 @@ function fbListeners() {
 function obtenerFBToken() {
     window.FirebasexMessaging.getToken(function (token) {
         if (token) {
-            console.log("firebaseLogs Firebase Token", token)
-            localStorage.setItem("helloFBToken", token)
-            console.log("firebaseLogs token recibido");
-
-            return
+            updateTokenServer(token);
         }
     }, function (error) {
         // Error al obtener Firebase Token
+        onListener(events.ERROR, "no se logro obtener el token")
     })
 }
+
+function updateTokenServer(token) {
+
+    const UUID = localStorage.getItem("UUID");
+
+    if (UUID == undefined || UUID == null) {
+        console.error("sin sesión encontrada ");
+        return;
+    }
+
+    fetch(API_UPDATE_TOKEN_URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ "token": token })
+    })
+        .then(response => response.json().then(data => ({ status: response.status, data: data })))
+        .then(result => {
+
+
+            if (result.status === 200 && result.data.success) {
+                onListener(events.TOKENUPDATED, "token actualizado")
+            } else {
+                onListener(events.ERROR, "no se logro actualizar el token")
+            }
+        })
+        .catch(() => {
+             onListener(events.ERROR, "el servidor no respondio correctamente")
+        });
+}
+
 
 function decoradorObtenerFBToken() {
     window.FirebasexMessaging.hasPermission(function (granted) {
@@ -142,7 +178,7 @@ function esperarFirebasePlugin() {
 }
 
 let fbOnPushNotification = function (mensaje) {
-    alert(mensaje)
+    //alert(mensaje)
 }
 
 esperarFirebasePlugin()
