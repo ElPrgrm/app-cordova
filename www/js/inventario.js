@@ -183,15 +183,16 @@ document.addEventListener('DOMContentLoaded', function () {
                 (p.id && String(p.id).includes(term))
             );
             renderizarTabla(filtrados);
-            // Revisar productos filtrados y enviar notificación si la cantidad es menor a 3
-            filtrados.forEach(producto => {
+            // Enviar una sola notificación por búsqueda: el primer producto con bajo inventario
+            for (const producto of filtrados) {
                 const cantidad = Number(producto.cantidad || 0);
                 const id = producto.id;
                 if (cantidad < 3 && id != null && !lowNotifiedIds.has(id)) {
                     notificarInventarioBajo(producto);
                     lowNotifiedIds.add(id);
+                    break; // Solo una notificación por búsqueda
                 }
-            });
+            }
         });
     }
 
