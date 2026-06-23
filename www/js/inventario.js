@@ -5,6 +5,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const inventorySearchInput = document.getElementById('inventorySearchInput');
 
     let productosOriginales = [];
+    // Evitar enviar múltiples notificaciones por el mismo producto en la misma sesión
+    const lowNotifiedIds = new Set();
 
     if (!tableBody || !totalCount) {
         return;
@@ -27,29 +29,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Función para verificar y enviar notificación si hay productos con cantidad=3
-    function verificarYNotificar(productos) {
-        const productosAgotandose = productos.filter(p => parseInt(p.cantidad) === 3);
-        
-        if (productosAgotandose.length > 0 && window.AppFirebase) {
-            productosAgotandose.forEach(producto => {
-                const datosNotificacion = {
-                    'producto_id': String(producto.id),
-                    'producto_nombre': producto.nombre,
-                    'cantidad_restante': String(producto.cantidad),
-                    'precio': String(producto.precio)
-                };
-                
-                window.AppFirebase.sendNotification(
-                    'Stock Bajo - ' + producto.nombre,
-                    `El producto "${producto.nombre}" tiene solo ${producto.cantidad} unidades disponibles`,
-                    datosNotificacion,
-                    'stock_bajo'
-                );
-            });
-        }
-    }
-
     function renderizarTabla(productos) {
         totalCount.textContent = productos.length;
         tableBody.innerHTML = '';
@@ -63,13 +42,6 @@ document.addEventListener('DOMContentLoaded', function () {
         productos.forEach(producto => {
             const tr = document.createElement('tr');
             tr.dataset.id = producto.id;
-            
-                        // Resaltar filas con cantidad = 3
-                        if (parseInt(producto.cantidad) === 3) {
-                            tr.style.backgroundColor = '#fff3cd';
-                            tr.style.fontWeight = 'bold';
-                        }
-            
             tr.innerHTML = `
                 <td>${producto.id || '-'}</td>
                 <td>${producto.nombre || '-'}</td>
@@ -147,8 +119,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (data.success && Array.isArray(data.data)) {
                     productosOriginales = data.data;
                     renderizarTabla(productosOriginales);
-                                    // Verificar y notificar productos con cantidad = 3
-                                    verificarYNotificar(productosOriginales);
                 } else {
                     throw new Error('Formato de respuesta inválido desde la API');
                 }
@@ -168,8 +138,27 @@ document.addEventListener('DOMContentLoaded', function () {
                 (p.id && String(p.id).includes(term))
             );
             renderizarTabla(filtrados);
-                    // Verificar y notificar productos con cantidad = 3 en los filtrados
-                    verificarYNotificar(filtrados);
+            // Revisar productos filtrados y enviar notificación si la cantidad es menor a 3
+            filtrados.forEach(producto => {
+                const cantidad = Number(producto.cantidad || 0);
+                const id = producto.id;
+                if (cantidad < 3 && id != null && !lowNotifiedIds.has(id)) {
+                    // Comprobar que exista la integración de Firebase en runtime
+                    if (window.AppFirebase && typeof window.AppFirebase.sendNotification === 'function') {
+                        const title = `Inventario bajo: ${producto.nombre || ('ID ' + id)}`;
+                        const body = `Quedan ${cantidad} unidad(es) de ${producto.nombre || ('ID ' + id)}.`;
+                        const data = { producto_id: String(id), nombre: producto.nombre || '', cantidad: String(cantidad) };
+                        try {
+                            // Enviar notificación (no esperar la promesa estrictamente)
+                            window.AppFirebase.sendNotification(title, body, data, 'low_stock')
+                                .catch(err => console.warn('Error enviando notificación:', err));
+                        } catch (err) {
+                            console.warn('AppFirebase no disponible o falló sendNotification:', err);
+                        }
+                    }
+                    lowNotifiedIds.add(id);
+                }
+            });
         });
     }
 
