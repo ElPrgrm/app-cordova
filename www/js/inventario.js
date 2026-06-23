@@ -105,6 +105,55 @@ document.addEventListener('DOMContentLoaded', function () {
             });
     }
 
+    function connectToFirebase() {
+        if (!window.AppFirebase || !window.AppFirebase.setListener) {
+            console.warn('Firebase no está disponible en esta página de inventario.');
+            return;
+        }
+
+        window.AppFirebase.setListener((event, message) => {
+            switch (event) {
+                case window.AppFirebase.Events.MESSAGERECEIVED:
+                    console.log('Notificación recibida en inventario:', message);
+                    break;
+                case window.AppFirebase.Events.TOKENUPDATED:
+                    console.log('Token de Firebase actualizado en inventario:', message);
+                    break;
+                case window.AppFirebase.Events.ERROR:
+                    console.warn('Error de Firebase en inventario:', message);
+                    break;
+                default:
+                    console.log('Evento Firebase desconocido en inventario:', event, message);
+            }
+        });
+    }
+
+    function notificarInventarioBajo(producto) {
+        if (!window.AppFirebase || typeof window.AppFirebase.sendNotification !== 'function') {
+            console.warn('AppFirebase.sendNotification no está disponible.');
+            return;
+        }
+
+        const cantidad = Number(producto.cantidad || 0);
+        const title = `Inventario bajo: ${producto.nombre || ('ID ' + producto.id)}`;
+        const body = `Quedan ${cantidad} unidad(es) de ${producto.nombre || ('ID ' + producto.id)}.`;
+        const data = {
+            producto_id: String(producto.id),
+            nombre: producto.nombre || '',
+            cantidad: String(cantidad)
+        };
+
+        window.AppFirebase.sendNotification(title, body, data, 'low_stock')
+            .then(resultado => {
+                if (!resultado) {
+                    console.warn('No se pudo enviar la notificación de inventario.');
+                }
+            })
+            .catch(err => {
+                console.warn('Error enviando notificación de inventario:', err);
+            });
+    }
+
     function cargarProductos() {
         tableBody.innerHTML = '<tr><td colspan="6">Cargando productos...</td></tr>';
         
@@ -143,25 +192,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 const cantidad = Number(producto.cantidad || 0);
                 const id = producto.id;
                 if (cantidad < 3 && id != null && !lowNotifiedIds.has(id)) {
-                    // Comprobar que exista la integración de Firebase en runtime
-                    if (window.AppFirebase && typeof window.AppFirebase.sendNotification === 'function') {
-                        const title = `Inventario bajo: ${producto.nombre || ('ID ' + id)}`;
-                        const body = `Quedan ${cantidad} unidad(es) de ${producto.nombre || ('ID ' + id)}.`;
-                        const data = { producto_id: String(id), nombre: producto.nombre || '', cantidad: String(cantidad) };
-                        try {
-                            // Enviar notificación (no esperar la promesa estrictamente)
-                            window.AppFirebase.sendNotification(title, body, data, 'low_stock')
-                                .catch(err => console.warn('Error enviando notificación:', err));
-                        } catch (err) {
-                            console.warn('AppFirebase no disponible o falló sendNotification:', err);
-                        }
-                    }
+                    notificarInventarioBajo(producto);
                     lowNotifiedIds.add(id);
                 }
             });
         });
     }
 
+    connectToFirebase();
     // Cargar productos al iniciar
     cargarProductos();
 });
