@@ -96,7 +96,7 @@ if ($action === 'register') {
         http_response_code(500);
         echo json_encode([
             'success' => false,
-            'error' => 'Error interno del servidor.'
+            'error' => 'Error interno: ' . $e->getMessage()
         ], JSON_UNESCAPED_UNICODE);
         exit;
     }
