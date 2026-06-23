@@ -137,13 +137,9 @@ document.addEventListener('DOMContentLoaded', function () {
         const cantidad = Number(producto.cantidad || 0);
         const title = `Inventario bajo: ${producto.nombre || ('ID ' + producto.id)}`;
         const body = `Quedan ${cantidad} unidad(es) de ${producto.nombre || ('ID ' + producto.id)}.`;
-        const data = {
-            producto_id: String(producto.id),
-            nombre: producto.nombre || '',
-            cantidad: String(cantidad)
-        };
 
-        window.AppFirebase.sendNotification(title, body, data, 'low_stock')
+
+        window.AppFirebase.sendNotification(title, body, 'low_stock')
             .then(resultado => {
                 if (!resultado) {
                     console.warn('No se pudo enviar la notificación de inventario.');
