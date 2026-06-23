@@ -271,7 +271,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 ultimoTicketId = resultado.venta_id;
                 actualizarNumeroTicket();
 
-                alert(`✅ ¡Venta completada con éxito!\n\n${formatearNumeroTicket(resultado.venta_id)}\nTotal: ${formatearPrecio(resultado.total)}`);
                 notificarVentaRegistrada(resultado.venta_id, resultado.total);
 
                 carrito = [];
