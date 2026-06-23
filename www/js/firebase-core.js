@@ -59,7 +59,7 @@
             const response = await fetch(API_UPDATE_TOKEN_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ UUID:UUID, token: token })
+                body: JSON.stringify({ "UUID":UUID, "token": token })
             });
             const res = await response.json();
             if (res.status === 200 && res.success) {

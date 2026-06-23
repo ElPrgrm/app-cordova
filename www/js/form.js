@@ -30,7 +30,7 @@ function connectToFirebase() {
                 break;
 
             case window.AppFirebase.Events.ERROR:
-                alert("Error en Firebase: " + message);
+                console.log("Error en Firebase: " + message);
                 break;
         }
     });
@@ -174,10 +174,10 @@ async function onFormSubmit(event) {
 }
 
 function notificarNuevoProducto(producto) {
-    window.AppFirebase.sendNotification("producto registrado", `el producto ${producto.nombre} ahora esta disponible`,{},"NuevoProducto")
+    window.AppFirebase.sendNotification("producto registrado", `el producto ${producto.nombre} ahora esta disponible`, {}, "NuevoProducto")
 }
 function notificarProductoActualizado(producto) {
-    window.AppFirebase.sendNotification("producto actualizado", `el producto ${producto.nombre} tiene cambios`,{},"ActualizarProducto")
+    window.AppFirebase.sendNotification("producto actualizado", `el producto ${producto.nombre} tiene cambios`, {}, "ActualizarProducto")
 }
 async function createProducto(productoData) {
     const response = await fetch(API_BASE_URL, {
