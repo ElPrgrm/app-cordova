@@ -309,6 +309,42 @@ document.addEventListener('DOMContentLoaded', function() {
     if (previewCancelBtn) previewCancelBtn.addEventListener('click', cerrarModalPago);
     if (previewConfirmBtn) previewConfirmBtn.addEventListener('click', procesarPago);
 
+    function getFirebasePayload(message) {
+        if (!message) return {};
+
+        if (typeof message === 'string') {
+            return { body: message };
+        }
+
+        if (typeof message === 'object') {
+            if (message.data && typeof message.data === 'object') {
+                return {...message.notification, ...message.data };
+            }
+            return message;
+        }
+
+        return {};
+    }
+
+    function isNuevoProductoNotification(payload) {
+        const reasonKey = String(payload.reasonKey || payload.reason || payload.action || '').toLowerCase();
+        const title = String(payload.title || payload.titulo || '').toLowerCase();
+        const body = String(payload.body || payload.descripcion || payload.message || '').toLowerCase();
+
+        return reasonKey === 'nuevoproducto' ||
+            title.includes('producto registrado') ||
+            title.includes('nuevo producto') ||
+            body.includes('producto registrado') ||
+            body.includes('nuevo producto');
+    }
+
+    function mostrarNotificacionProductoNuevo(payload) {
+        const title = payload.title || payload.titulo || 'Nuevo producto disponible';
+        const body = payload.body || payload.descripcion || payload.message || '';
+
+        alert(`📦 ${title}\n\n${body}`);
+    }
+
     function connectToFirebase() {
         if (!window.AppFirebase || !window.AppFirebase.setListener) {
             console.warn('Firebase no está disponible en esta página.');
@@ -318,8 +354,15 @@ document.addEventListener('DOMContentLoaded', function() {
         window.AppFirebase.setListener((event, message) => {
             switch (event) {
                 case window.AppFirebase.Events.MESSAGERECEIVED:
-                    console.log('Notificación recibida:', message);
-                    break;
+                    {
+                        const payload = getFirebasePayload(message);
+                        if (isNuevoProductoNotification(payload)) {
+                            mostrarNotificacionProductoNuevo(payload);
+                        } else {
+                            console.log('Notificación recibida:', message);
+                        }
+                        break;
+                    }
                 case window.AppFirebase.Events.TOKENUPDATED:
                     console.log('Token de Firebase actualizado:', message);
                     break;
