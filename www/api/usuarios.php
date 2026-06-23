@@ -49,11 +49,10 @@ function createUser($db, $username, $password, $uuid = '') {
 
     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
-    $insert = $db->insert('usuarios', 'uuid,username,password,token');
+    $insert = $db->insert('usuarios', 'uuid,username,password');
     $insert->value($uuid);
     $insert->value($username);
     $insert->value($hashedPassword);
-    $insert->value('');
     $insert->execute();
 
     return [
@@ -158,21 +157,14 @@ try {
         exit;
     }
 
-    $token = bin2hex(random_bytes(16));
-    $update = $db->update('usuarios');
-    $update->set('token', $token);
-    $update->where('id', '=', $user['id']);
-    $update->execute();
-
     echo json_encode([
         'success' => true,
-        'message' => 'Inicio de sesi���n exitoso.',
+        'message' => 'Inicio de sesión exitoso.',
         'user' => [
             'id' => intval($user['id']),
             'uuid' => $user['uuid'] ?? null,
-            'name' => $user['username']
-        ],
-        'token' => $token
+            'username' => $user['username']
+        ]
     ], JSON_UNESCAPED_UNICODE);
 } catch (Exception $e) {
     http_response_code(500);

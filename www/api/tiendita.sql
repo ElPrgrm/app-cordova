@@ -92,7 +92,7 @@ INSERT INTO `productos` (`id`, `nombre`, `descripcion`, `precio`, `cantidad`) VA
 CREATE TABLE `usuarios` (
   `id` int(100) NOT NULL,
   `uuid` varchar(36) NOT NULL,
-  `name` varchar(255) NOT NULL,
+  `username` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
   `token` varchar(500) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
