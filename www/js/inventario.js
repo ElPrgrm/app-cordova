@@ -27,6 +27,29 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    // Función para verificar y enviar notificación si hay productos con cantidad=3
+    function verificarYNotificar(productos) {
+        const productosAgotandose = productos.filter(p => parseInt(p.cantidad) === 3);
+        
+        if (productosAgotandose.length > 0 && window.AppFirebase) {
+            productosAgotandose.forEach(producto => {
+                const datosNotificacion = {
+                    'producto_id': String(producto.id),
+                    'producto_nombre': producto.nombre,
+                    'cantidad_restante': String(producto.cantidad),
+                    'precio': String(producto.precio)
+                };
+                
+                window.AppFirebase.sendNotification(
+                    'Stock Bajo - ' + producto.nombre,
+                    `El producto "${producto.nombre}" tiene solo ${producto.cantidad} unidades disponibles`,
+                    datosNotificacion,
+                    'stock_bajo'
+                );
+            });
+        }
+    }
+
     function renderizarTabla(productos) {
         totalCount.textContent = productos.length;
         tableBody.innerHTML = '';
@@ -40,6 +63,13 @@ document.addEventListener('DOMContentLoaded', function () {
         productos.forEach(producto => {
             const tr = document.createElement('tr');
             tr.dataset.id = producto.id;
+            
+                        // Resaltar filas con cantidad = 3
+                        if (parseInt(producto.cantidad) === 3) {
+                            tr.style.backgroundColor = '#fff3cd';
+                            tr.style.fontWeight = 'bold';
+                        }
+            
             tr.innerHTML = `
                 <td>${producto.id || '-'}</td>
                 <td>${producto.nombre || '-'}</td>
@@ -117,6 +147,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (data.success && Array.isArray(data.data)) {
                     productosOriginales = data.data;
                     renderizarTabla(productosOriginales);
+                                    // Verificar y notificar productos con cantidad = 3
+                                    verificarYNotificar(productosOriginales);
                 } else {
                     throw new Error('Formato de respuesta inválido desde la API');
                 }
@@ -136,6 +168,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 (p.id && String(p.id).includes(term))
             );
             renderizarTabla(filtrados);
+                    // Verificar y notificar productos con cantidad = 3 en los filtrados
+                    verificarYNotificar(filtrados);
         });
     }
 
