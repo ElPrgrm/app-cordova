@@ -272,6 +272,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 actualizarNumeroTicket();
 
                 alert(`✅ ¡Venta completada con éxito!\n\n${formatearNumeroTicket(resultado.venta_id)}\nTotal: ${formatearPrecio(resultado.total)}`);
+                notificarVentaRegistrada(resultado.venta_id, resultado.total);
 
                 carrito = [];
                 actualizarTicket();
@@ -308,6 +309,45 @@ document.addEventListener('DOMContentLoaded', function() {
     if (previewCancelBtn) previewCancelBtn.addEventListener('click', cerrarModalPago);
     if (previewConfirmBtn) previewConfirmBtn.addEventListener('click', procesarPago);
 
+    function connectToFirebase() {
+        if (!window.AppFirebase || !window.AppFirebase.setListener) {
+            console.warn('Firebase no está disponible en esta página.');
+            return;
+        }
+
+        window.AppFirebase.setListener((event, message) => {
+            switch (event) {
+                case window.AppFirebase.Events.MESSAGERECEIVED:
+                    console.log('Notificación recibida:', message);
+                    break;
+                case window.AppFirebase.Events.TOKENUPDATED:
+                    console.log('Token de Firebase actualizado:', message);
+                    break;
+                case window.AppFirebase.Events.ERROR:
+                    console.warn('Error de Firebase:', message);
+                    break;
+                default:
+                    console.log('Evento Firebase desconocido:', event, message);
+            }
+        });
+    }
+
+    function notificarVentaRegistrada(ventaId, total) {
+        if (!window.AppFirebase || !window.AppFirebase.sendNotification) {
+            console.warn('AppFirebase.sendNotification no está disponible.');
+            return;
+        }
+
+        const titulo = 'Venta registrada';
+        const descripcion = `Ticket #${String(ventaId).padStart(3, '0')} generado por ${formatearPrecio(total)}`;
+        window.AppFirebase.sendNotification(titulo, descripcion, {}, 'VentaRegistrada')
+            .then(resultado => {
+                if (!resultado) {
+                    console.warn('No se pudo enviar la notificación de venta.');
+                }
+            });
+    }
+
     if (paymentModal) {
         paymentModal.addEventListener('click', (e) => {
             if (e.target === paymentModal) cerrarModalPago();
@@ -319,6 +359,8 @@ document.addEventListener('DOMContentLoaded', function() {
             cerrarModalPago();
         }
     });
+
+    connectToFirebase();
 
     // === FUNCIONALIDAD DE HISTORIAL DE TICKETS ===
     const historyButton = document.getElementById('historyButton');
