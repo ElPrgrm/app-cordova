@@ -1,20 +1,16 @@
-// firebase-core.js (Cárgalo al inicio de tu app)
 
 (function () {
     const API_SEND_URL = 'https://elrjtd.online/DDI/API/firebase/sendNotification.php';
     const API_UPDATE_TOKEN_URL = 'https://elrjtd.online/DDI/API/firebase/update_token.php';
 
-    // 1. Mantenemos tu Enum de eventos idéntico
     const FirebaseEvents = Object.freeze({
         MESSAGERECEIVED: "MESSAGERECEIVED",
         TOKENUPDATED: "TOKENUPDATED",
         ERROR: "ERROR"
     });
 
-    // Variable interna para guardar el listener de la página activa
     let activePageListener = null;
 
-    // 2. La función que despacha los eventos con tus 2 parámetros obligatorios
     function emitirA_Pagina(event, message) {
         if (activePageListener && typeof activePageListener === 'function') {
             activePageListener(event, message);
@@ -23,7 +19,6 @@
         }
     }
 
-    // 3. Orquestador interno del Plugin nativo
     function inicializarPlugin() {
         if (!window.FirebasexMessaging) {
             setTimeout(inicializarPlugin, 3000);
@@ -43,17 +38,14 @@
     }
 
     function configurarListenersNativos() {
-        // Al recibir mensaje nativo
         window.FirebasexMessaging.onMessageReceived((message) => {
             emitirA_Pagina(FirebaseEvents.MESSAGERECEIVED, message);
         });
 
-        // Al refrescar token
         window.FirebasexMessaging.onTokenRefresh((token) => {
             sincronizarTokenConServidor(token);
         }, () => emitirA_Pagina(FirebaseEvents.ERROR, "Error al refrescar token"));
 
-        // Obtención inicial del token
         window.FirebasexMessaging.getToken((token) => {
             sincronizarTokenConServidor(token);
         }, () => emitirA_Pagina(FirebaseEvents.ERROR, "Error al obtener token inicial"));
@@ -67,7 +59,7 @@
             const response = await fetch(API_UPDATE_TOKEN_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ token: token })
+                body: JSON.stringify({ UUID:UUID, token: token })
             });
             const res = await response.json();
             if (res.status === 200 && res.success) {
@@ -78,29 +70,27 @@
         }
     }
 
-    // 4. Exponemos al entorno global la API limpia que usarán tus otros HTML
     window.AppFirebase = {
         Events: FirebaseEvents,
 
-        // Cada HTML invocará esto al cargar para "apropiarse" de las notificaciones
         setListener: function (listener) {
             activePageListener = listener;
             console.log("FirebaseCore: Nuevo listener asignado por la página actual.");
         },
 
-        /* Calcula el precio total de un producto aplicando impuestos y un descuento opcional.
- * @param {string} title - el titulo de la notificación
- * @param {string} body - texto dentro de la notificación
- * @param {array} [data = undefined] - un array de datos para enviar(clave y valor deben ser string)
- * @param {string} [reasonkey = notify] - palabra clave para que el remitente sepa que hacer con ella
- * @returns { async} la espera de respuesta.
- */
+        /* manda la notificación a los dispositivos validos
+        * @param {string} title - el titulo de la notificación
+        * @param {string} body - texto dentro de la notificación
+        * @param {array} [data = undefined] - un array de datos para enviar(clave y valor deben ser string)
+        * @param {string} [reasonkey = notify] - palabra clave para que el remitente sepa que hacer con ella
+        * @returns { async} la espera de respuesta.
+         */
         sendNotification: async function (title, body, additionalData = {}, reasonKey = "notify") {
             const UUID = localStorage.getItem("UUID");
             if (!UUID) return "sin sesión encontrada";
 
             additionalData.reasonKey = reasonKey;
-           
+
             try {
                 const response = await fetch(API_SEND_URL, {
                     method: 'POST',
@@ -114,7 +104,6 @@
         }
     };
 
-    // Arrancar el proceso de escucha de fondo inmediatamente
     inicializarPlugin();
 
 })();
