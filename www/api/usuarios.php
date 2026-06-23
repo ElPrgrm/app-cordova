@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/conector.php';
+
 ini_set('display_errors', 1);
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
@@ -25,45 +26,20 @@ $username = trim($input['username'] ?? '');
 $password = trim($input['password'] ?? '');
 $uuid = trim($input['uuid'] ?? '');
 
-/**
- * Crea un usuario en la base de datos.
- * Retorna un array con keys: success (bool), code (int, opcional), message/error y user (opcional).
- */
-function createUser($db, $username, $password, $uuid = '') {
+if ($action === 'register') {
     if ($username === '' || $password === '') {
-        return ['success' => false, 'code' => 400, 'error' => 'Debes enviar usuario y contraseña para el registro.'];
+        http_response_code(400);
+        echo json_encode([
+            'success' => false,
+            'error' => 'Debes enviar usuario y contrase���a para el registro.'
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
     }
 
     if ($uuid === '') {
         $uuid = generateUuidV4();
     }
 
-    // comprobar existencia
-    $existing = $db->select('usuarios');
-    $existing->where('username', '=', $username);
-    $rows = $existing->execute();
-
-    if (!empty($rows)) {
-        return ['success' => false, 'code' => 409, 'error' => 'El nombre de usuario ya existe.'];
-    }
-
-    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-
-    $insert = $db->insert('usuarios', 'uuid,username,password,token');
-    $insert->value($uuid);
-    $insert->value($username);
-    $insert->value($hashedPassword);
-    $insert->value('');
-    $insert->execute();
-
-    return [
-        'success' => true,
-        'message' => 'Usuario registrado correctamente.',
-        'user' => [ 'uuid' => $uuid, 'username' => $username ]
-    ];
-}
-
-if ($action === 'register') {
     try {
         $db = getConexion();
     } catch (Exception $e) {
@@ -76,21 +52,35 @@ if ($action === 'register') {
     }
 
     try {
-        $res = createUser($db, $username, $password, $uuid);
-        if (!$res['success']) {
-            $code = $res['code'] ?? 400;
-            http_response_code($code);
+        $existing = $db->select('usuarios');
+        $existing->where('username', '=', $username);
+        $rows = $existing->execute();
+
+        if (!empty($rows)) {
+            http_response_code(409);
             echo json_encode([
                 'success' => false,
-                'error' => $res['error']
+                'error' => 'El nombre de usuario ya existe.'
             ], JSON_UNESCAPED_UNICODE);
             exit;
         }
 
+        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+
+        $insert = $db->insert('usuarios', 'uuid,username,password,token');
+        $insert->value($uuid);
+        $insert->value($username);
+        $insert->value($hashedPassword);
+        $insert->value('');
+        $insert->execute();
+
         echo json_encode([
             'success' => true,
-            'message' => $res['message'],
-            'user' => $res['user']
+            'message' => 'Usuario registrado correctamente.',
+            'user' => [
+                'uuid' => $uuid,
+                'username' => $username
+            ]
         ], JSON_UNESCAPED_UNICODE);
         exit;
     } catch (Exception $e) {
@@ -158,21 +148,16 @@ try {
         exit;
     }
 
-    $token = bin2hex(random_bytes(16));
-    $update = $db->update('usuarios');
-    $update->set('token', $token);
-    $update->where('id', '=', $user['id']);
-    $update->execute();
+
 
     echo json_encode([
         'success' => true,
         'message' => 'Inicio de sesi���n exitoso.',
         'user' => [
             'id' => intval($user['id']),
-            'uuid' => $user['uuid'] ?? null,
+            'uuid' => $user['UUID'],
             'name' => $user['username']
-        ],
-        'token' => $token
+        ]
     ], JSON_UNESCAPED_UNICODE);
 } catch (Exception $e) {
     http_response_code(500);
