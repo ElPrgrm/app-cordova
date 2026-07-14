@@ -1,0 +1,13 @@
+name: Info del Último Push
+
+on: [push]
+
+jobs:
+  mostrar-info:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Imprimir detalles del commit
+        run: |
+          echo "El usuario que subió el código fue: ${{ github.actor }}"
+          echo "El mensaje del commit es: ${{ github.event.head_commit.message }}"
